@@ -1,0 +1,127 @@
+/* src/styles/PersonMenu.css */
+
+.person-menu {
+  position: fixed;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.05);
+  min-width: 100px;
+  max-width: 150px;
+  overflow: hidden;
+  animation: menuSlideIn 0.2s ease-out;
+}
+
+@keyframes menuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.person-menu-header {
+  padding: 6px 10px;
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+  background: linear-gradient(135deg, var(--color-primary2) 0%, var(--color-primary1) 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.025em;
+}
+
+.person-menu-items {
+  padding: 4px;
+
+}
+
+.person-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 6px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 8px;
+  font-weight: 700;
+  color: #374151;
+  margin: 2px 0;
+}
+
+.person-menu-item:hover {
+  background-color: #f3f4f6;
+  color: #667eea;
+  transform: scale(1.05)
+}
+
+.person-menu-item:active {
+  transform: scale(0.95);
+  outline: none;
+  box-shadow: none;
+}
+
+
+
+.person-menu-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.person-menu-item:hover .person-menu-icon {
+  color: #667eea;
+}
+
+.person-menu-text {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  margin-left: 0.25rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .person-menu {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .person-menu-item {
+    color: #e5e7eb;
+  }
+
+  .person-menu-item:hover {
+    background-color: #374151;
+    color: #a78bfa;
+  }
+
+  .person-menu-icon {
+    color: #9ca3af;
+  }
+
+  .person-menu-item:hover .person-menu-icon {
+    color: #a78bfa;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .person-menu {
+    min-width: 180px;
+    max-width: 200px;
+  }
+  
+  .person-menu-item {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}

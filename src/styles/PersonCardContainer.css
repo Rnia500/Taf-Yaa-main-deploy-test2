@@ -1,0 +1,52 @@
+/* styles/PersonCard.css */
+
+.person-card-container {
+  position: relative;
+  width: 120px;
+  height: 170px;
+  background: linear-gradient(to bottom, #c58c66, #f3e7d3);
+  /* clip-path: path('M 0 20 Q 0 0 20 0 L 100 0 Q 120 0 120 20 L 120 145 Q 120 165 105 165 H 80 Q 75 165 70 170 Q 65 175 60 175 Q 55 175 50 170 Q 45 165 40 165 H 15 Q 0 165 0 145 Z'); */
+  clip-path: path('M 0 20 Q 0 0 20 0 L 100 0 Q 120 0 120 20 L 120 145 Q 120 165 105 165 H 80 Q 75 165 68 185 Q 60 200 52 185 Q 45 165 40 165 H 15 Q 0 165 0 145 Z');
+  
+  display: flex;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  border-radius: 20px;
+}
+
+
+.person-card-content {
+  padding: 1rem;
+  text-align: center;
+  z-index: 2;
+}
+
+.person-card-add-btn {
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #F0E1CB, #f3e7d3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.person-card-add-btn:hover {
+  background: #fff4e3;
+}
+
+.person-card-add-btn:focus,
+.person-card-add-btn:active {
+  outline: none;
+  box-shadow: none;
+}
+

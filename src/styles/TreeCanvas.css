@@ -1,0 +1,13 @@
+/* src/styles/treeCanvas.css */
+
+.lineage-edge {
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  animation: draw-line 5s linear forwards; 
+}
+
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

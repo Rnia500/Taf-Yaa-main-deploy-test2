@@ -1,0 +1,62 @@
+:root {
+  /* Primary Color */
+  --color-primary1: #16a34a;
+  --color-primary2: #1F724A;
+
+  /* Secondary Color */
+  --color-secondary1: #C9731E;
+  --color-secondary2: #8B5E3C;
+
+  /* Background Colors */
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-black: #000000;
+  --color-background: #F3EDE0;
+  --color-ground: #d29b6c;
+  --color-gray: #ccc;
+  --color-gray-dark: #888;
+  --color-light-blue: #e9ecf0;
+  --color-overlay: rgba(0, 0, 0, 0.5);  
+  --color-disabled-bg: rgba(0, 0, 0, 0.05);
+
+  /* Danger, Default & Info */
+  --color-danger: #ef4444;
+  --color-danger-light: #f7caca;
+  --color-success: #22c55e;
+  --color-danger-hover: #dc2626;
+  --color-warning1: #FFB732;
+  --color-warning2: #FFA500;
+  --color-info: #5395FF;
+  --color-info-light: #b7d1fc;
+  --color-male: #5395FF;
+  --color-female: #FF00EE;
+  --color-link: #2563eb;
+  --color-link-hover: #7c0786;
+  
+
+  --color-defaultCardbg: #f8f9fa;
+  --color-primary: var(--color-primary1);
+  --color-primary-dark: #15803d;
+  --color-primary-light: #bbf7d0;
+  --color-gray-light: #e5e7eb;
+  --color-gray-ultralight: #f9fafb;
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
+  --color-error-dark: #b91c1c;
+  --color-success-light: #cdfadd;
+  --color-success-dark: #15803d;
+  --color-warning-light: #fef3c7;
+  --color-warning-dark: #b45309;
+
+  /* Text Colors */
+  --color-primary-text: #111827;
+  --color-secondary-text: #6b7280;
+  --color-tertiary-text: #877863;
+  --color-clear-text: #e5e7eb;
+
+
+
+  /*modal header colors*/
+  --color-ModalWaring:#ffe492;
+
+}

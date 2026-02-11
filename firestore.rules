@@ -1,0 +1,209 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- HELPERS ---------- //
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function treeRef(treeId) {
+      return get(/databases/$(database)/documents/trees/$(treeId));
+    }
+
+    function treeExists(treeId) {
+      return exists(/databases/$(database)/documents/trees/$(treeId));
+    }
+
+    function isTreeMember(treeId) {
+      return isSignedIn()
+        && treeExists(treeId)
+        && request.auth.uid in treeRef(treeId).data.memberUIDs;
+    }
+
+    function isTreePublic(treeId) {
+      return treeExists(treeId)
+        && treeRef(treeId).data.settings.privacy.isPublic == true;
+    }
+
+    function getMemberRole(treeId) {
+      let roles = treeRef(treeId).data.roles;
+      return roles != null ? roles[request.auth.uid] : null;
+    }
+
+    function isTreeAdminOrModerator(treeId) {
+      let role = getMemberRole(treeId);
+      return role == 'admin' || role == 'moderator';
+    }
+
+    function isTreeEditorOrAbove(treeId) {
+      let role = getMemberRole(treeId);
+      return role == 'admin' || role == 'moderator' || role == 'editor';
+    }
+
+    // ---------- USERS ---------- //
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ---------- TREES ---------- //
+
+    match /trees/{treeId} {
+      allow list: if isSignedIn();
+
+      allow get: if isSignedIn() && (
+        isTreeMember(treeId) || isTreePublic(treeId)
+      );
+
+      allow create: if isSignedIn();
+
+      allow update, delete: if isSignedIn() && isTreeAdminOrModerator(treeId);
+    }
+
+    // ---------- PEOPLE ---------- //
+
+    match /people/{personId} {
+      allow read: if isSignedIn() &&
+        (isTreeMember(resource.data.treeId) || isTreePublic(resource.data.treeId));
+
+      allow create: if isSignedIn() &&
+        isTreeEditorOrAbove(request.resource.data.treeId);
+
+      allow update, delete: if isSignedIn() &&
+        isTreeEditorOrAbove(resource.data.treeId);
+
+      allow list: if isSignedIn();
+    }
+
+    // ---------- MARRIAGES ---------- //
+
+    match /marriages/{marriageId} {
+      allow read: if isSignedIn() &&
+        (isTreeMember(resource.data.treeId) || isTreePublic(resource.data.treeId));
+
+      allow create: if isSignedIn() &&
+        isTreeEditorOrAbove(request.resource.data.treeId);
+
+      allow update, delete: if isSignedIn() &&
+        isTreeEditorOrAbove(resource.data.treeId);
+
+      allow list: if isSignedIn();
+    }
+
+    // ---------- EVENTS ---------- //
+
+    match /events/{eventId} {
+      allow read: if isSignedIn() &&
+        (isTreeMember(resource.data.treeId) || isTreePublic(resource.data.treeId));
+
+      allow create: if isSignedIn() &&
+        isTreeEditorOrAbove(request.resource.data.treeId);
+
+      allow update, delete: if isSignedIn() &&
+        isTreeEditorOrAbove(resource.data.treeId);
+
+      allow list: if isSignedIn();
+    }
+
+    // ---------- STORIES ---------- //
+
+    match /stories/{storyId} {
+
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.createdBy ||
+        (resource.data.contributors != null &&
+          request.auth.uid in resource.data.contributors) ||
+        isTreeMember(resource.data.treeId) ||
+        isTreePublic(resource.data.treeId)
+      );
+
+      allow create: if isSignedIn() &&
+        (request.auth.uid == request.resource.data.createdBy ||
+         isTreeEditorOrAbove(request.resource.data.treeId));
+
+      allow update, delete: if isSignedIn() &&
+        (request.auth.uid == resource.data.createdBy ||
+         isTreeEditorOrAbove(resource.data.treeId));
+
+      allow list: if isSignedIn();
+    }
+
+    // ---------- MEDIA ---------- //
+
+    match /media/{mediaId} {
+      allow read: if isSignedIn() &&
+        (isTreeMember(resource.data.treeId) || isTreePublic(resource.data.treeId));
+
+      allow create: if isSignedIn() &&
+        isTreeEditorOrAbove(request.resource.data.treeId);
+
+      allow update, delete: if isSignedIn() &&
+        isTreeEditorOrAbove(resource.data.treeId);
+
+      allow list: if isSignedIn();
+    }
+
+    // ---------- INVITES ---------- //
+
+    match /invites/{inviteId} {
+      allow read: if isSignedIn() &&
+        (request.auth.uid == resource.data.createdBy ||
+         isTreeAdminOrModerator(resource.data.treeId));
+
+      allow create: if isSignedIn() &&
+        (request.auth.uid == request.resource.data.createdBy ||
+         isTreeAdminOrModerator(request.resource.data.treeId));
+
+      allow update, delete: if isSignedIn() &&
+        (request.auth.uid == resource.data.createdBy ||
+         isTreeAdminOrModerator(resource.data.treeId));
+
+      allow list: if false;
+    }
+
+    // ---------- JOIN REQUESTS ---------- //
+
+    match /joinRequests/{joinRequestId} {
+
+
+      allow create: if isSignedIn();
+
+
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.submittedBy ||
+        isTreeAdminOrModerator(resource.data.treeId)
+      );
+
+
+      allow list: if isSignedIn()
+        && request.query.where.size() == 1
+        && request.query.where[0][0] == 'treeId'
+        && isTreeAdminOrModerator(request.query.where[0][2]);
+
+
+      allow update, delete: if isSignedIn()
+        && isTreeAdminOrModerator(resource.data.treeId);
+    }
+
+
+    // ---------- ACTIVITIES ---------- //
+
+    match /activities/{activityId} {
+      allow read: if isSignedIn() &&
+        isTreeAdminOrModerator(resource.data.treeId);
+
+      allow create: if isSignedIn();
+
+      allow update, delete: if false; // Activities are immutable once created
+
+      allow list: if isSignedIn()
+        && request.query.where.size() == 1
+        && request.query.where[0][0] == 'treeId'
+        && isTreeAdminOrModerator(request.query.where[0][2]);
+    }
+
+  }
+}

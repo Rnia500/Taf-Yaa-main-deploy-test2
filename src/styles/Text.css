@@ -1,0 +1,141 @@
+/* Text.css */
+
+/* Font faces */
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/Fonts/inter-v19-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/Fonts/poppins-v23-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+/* Base */
+.text {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+
+/* Variants */
+.text-heading1 {
+  font-size: clamp(24px, 5vw, 32px);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--color-primary-text);
+}
+
+.text-heading2 {
+  font-size: clamp(18px, 4vw, 24px);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--color-primary-text);
+}
+
+.text-heading3 {
+  font-size: clamp(14px, 3vw, 18px);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--color-primary-text);
+}
+
+.text-body1 {
+  font-size: clamp(14px, 3vw, 16px);
+  font-weight: 400;
+  color: var(--color-primary-text);
+}
+
+.text-body2 {
+  font-size: clamp(12px, 2.5vw, 14px);
+  font-weight: 400;
+  color: var(--color-primary-text);
+}
+
+.text-caption1 {
+  font-size: clamp(10px, 2vw, 12px);
+  font-weight: 400;
+  color: var(--color-secondary-text);
+}
+
+.text-caption2 {
+  font-size: clamp(8px, 1.5vw, 10px);
+  font-weight: 400;
+  color: var(--color-tertiary-text);
+}
+
+/* Modifiers */
+.text-bold {
+  font-weight: 700;
+}
+.text-italic {
+  font-style: italic;
+}
+.text-underline {
+  text-decoration: underline;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+.text-overline {
+  text-decoration: overline;
+}
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.text-lowercase {
+  text-transform: lowercase;
+}
+.text-strikethrough {
+  text-decoration: line-through;
+}
+
+.text-ellipsis {
+  min-width: 0; /* ✅ allows truncation in flex items */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.text-link {
+  color: var(--color-link);
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+.text-link:hover {
+  color: var(--color-link-hover);
+}
+
+.text-line-clamp {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal; /* ✅ allows wrapping */
+}
+
+.text-line-clamp-1 { -webkit-line-clamp: 1; }
+.text-line-clamp-2 { -webkit-line-clamp: 2; }
+.text-line-clamp-3 { -webkit-line-clamp: 3; }
+.text-line-clamp-4 { -webkit-line-clamp: 4; }
+.text-line-clamp-5 { -webkit-line-clamp: 5; }
+.text-line-clamp-6 { -webkit-line-clamp: 6; }
+.text-line-clamp-7 { -webkit-line-clamp: 7; }
+.text-line-clamp-8 { -webkit-line-clamp: 8; }
+.text-line-clamp-9 { -webkit-line-clamp: 9; }
+.text-line-clamp-10 { -webkit-line-clamp: 10; }
+/* add more if needed */

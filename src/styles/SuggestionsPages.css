@@ -1,0 +1,138 @@
+/* Suggestions Page - Updated for Component System */
+.suggestions-page {
+  min-height: 100vh;
+  padding: 1rem;
+  color: var(--color-primary-text, #111827);
+  display: flex;
+  flex-direction: row;
+}
+
+/* Sidebar Styles */
+.navigation-sidebar {
+  width: 280px;
+  background: var(--color-white);
+  border-right: 1px solid var(--color-gray);
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Custom scrollbar for navigation sidebar */
+.navigation-sidebar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.navigation-sidebar::-webkit-scrollbar-track {
+  background: var(--color-gray);
+}
+
+.navigation-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(22, 163, 74, 0.3);
+  border-radius: 3px;
+}
+
+.navigation-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary2)
+}
+
+/* Responsive adjustments */
+@media (max-width: 1000px) {
+  .suggestions-page .layout-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .suggestions-page .layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Custom styles for suggestion cards */
+.suggestion-card {
+  transition: all 0.2s ease;
+}
+
+.suggestion-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 92vw;
+    max-width: none;
+  }
+}
+
+/* Filter panel animations */
+.filter-panel {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Empty state styling */
+.empty-state {
+  border: 1px dashed #ccc;
+  border-radius: 12px;
+  background: #fff;
+  text-align: center;
+  padding: 30px;
+  color: #777;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 1200px) {
+  .suggestions-page .layout-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .suggestions-page .layout-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .suggestions-page {
+    flex-direction: column;
+  }
+
+  .navigation-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-gray);
+  }
+
+  .suggestions-page .layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .meta-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navigation-sidebar {
+    max-height: 150px;
+  }
+}

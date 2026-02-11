@@ -1,0 +1,16 @@
+.activity-card {
+  position: relative;
+  height: 100px;
+  min-height: 100px;
+  max-height: 100px;
+  width: 100%;
+  min-width: 280px;
+  /* Removed max-width to allow cards to grow and fill available space */
+}
+
+@media (max-width: 768px) {
+  .activity-card {
+    min-width: 100%;
+    max-width: 100%;
+  }
+}

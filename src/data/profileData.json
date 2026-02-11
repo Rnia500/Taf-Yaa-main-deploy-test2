@@ -1,0 +1,63 @@
+{
+  "profileData": {
+    "profileName": "Nadia Kamenie",
+    "birthDate": "January 15, 1950",
+    "deathDate": "March 22, 2020",
+    "profileImage": "/Images/image5.jpg",
+    "statusIcons": "✍️Admin ⚰️ Deceased"
+  },
+
+  "identityData": {
+    "gender": "Female",
+    "familyRole": "Mother of Emylie",
+    "tribe": "Bafang",
+    "language": "Bafang",
+    "status": "Deceased"
+  },
+
+  "contactData": {
+    "phoneNumber": "+237 694 89 98 78",
+    "lastLocation": "Bamenda, Cameroon",
+    "linkedAccount": "Mama Zho",
+    "privacyStatus": "Public"
+  },
+  "biographyText": "Nadia Kameni was a respected elder in the Tanda Dynasty, known for her wisdom and storytelling. She was a healer and a pillar of strength for her family and community. Nadia migrated from Bamenda to Bafang, where she raised her children and preserved the traditions of her ancestors. Nadia's life was a tapestry of resilience and love. She carried the wisdom of her ancestors, guiding her family through challenges and celebrating their triumphs. Her stories, filled with laughter and lessons, continue to inspire generations.",
+  
+  "roles": ["Admin", "Linked Account"],
+
+  "familyConnections": {
+    
+    "spouses": [{ "name": "Marie", "image": "https://via.placeholder.com/100" }],
+
+    "children": [
+      { "name": "Alice", "image": "https://via.placeholder.com/100" },
+      { "name": "Bob", "image": "https://via.placeholder.com/100" },
+      { "name": "Chloe", "image": "https://via.placeholder.com/100" }
+    ],
+
+    "parents": [
+      { "name": "Jean", "image": "https://via.placeholder.com/100" },
+      { "name": "Lucie", "image": "https://via.placeholder.com/100" }
+    ],
+    "siblings": [{ "name": "Marie", "image": "https://via.placeholder.com/100" }]
+  },
+
+  "timelineEvents": [
+    { "title": "Birth", "date": "January 15, 1970" },
+    { "title": "Marriage", "date": "March 22, 1985" },
+    { "title": "Death", "date": "March 22, 2020" }
+  ],
+
+  "audioStory":[
+    {"title": "Nadia's Legacy", "subTitle": "What she left behind", "thumbnail": "/Images/image1.png", "audioURL":"/Audio/Gorillaz_-_Feel_Good_Inc.__Official_Video_(140).m4a", "duration": "03:45"},
+    {"title": "Nadia's Exploit", "subTitle": "How it all began", "thumbnail": "/Images/image6.jpg", "audioURL":"https://via.audioPlaceholder.com/100", "duration": "15:00"},
+    {"title": "Nadia's Exploit", "subTitle": "How it all began", "thumbnail": "/Images/image7.jpg", "audioURL":"https://via.audioPlaceholder.com/100", "duration": "15:00"}
+  ],
+
+  "photos": [
+    { "url": "/Images/image8.jpg", "alt": "Photo 1" },
+    { "url": "/Images/image2.png", "alt": "Photo 2" },
+    { "url": "/Images/image5.jpg", "alt": "Photo 3" },
+    { "url": "/Images/image4.png", "alt": "Photo 4" }
+  ]
+}

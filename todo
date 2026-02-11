@@ -1,0 +1,27 @@
+# TODO: Change Form Errors to Toast Messages
+
+## Files to Update
+
+### 1. JoinRequestPage.jsx
+- [ ] Remove error state and setError calls for validation
+- [ ] Replace setError with addToast for validation errors
+- [ ] Remove error display component
+
+### 2. InviteModal.jsx
+- [ ] Remove error state and setError calls for validation
+- [ ] Replace setError with addToast for validation errors
+- [ ] Remove error display component
+
+### 3. Controllers
+- [ ] TreeCreationController.jsx: Replace setError with addToast for validation
+- [ ] EditPersonController.jsx: Replace setError with addToast for validation
+- [ ] AddSpouseController.jsx: Replace setError with addToast for validation
+- [ ] AddParentController.jsx: Replace setError with addToast for validation
+- [ ] AddChildController.jsx: Replace setError with addToast for validation
+
+### 4. Other Forms (if needed)
+- [ ] Check and update any other forms that use setError for validation
+
+## Testing
+- [ ] Test each form to ensure errors show as toasts
+- [ ] Verify no inline error messages remain

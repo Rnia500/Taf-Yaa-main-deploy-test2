@@ -1,0 +1,46 @@
+.relatives-list {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.relatives-list.stacked {
+  gap: 0;
+}
+
+.relatives-list.stacked .relatives-card:not(:first-child) {
+  margin-left: -12px;
+}
+
+.relatives-card {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #ccc;
+  background: #eee;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.relatives-card:hover {
+  transform: scale(1.05);
+}
+
+.relatives-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category-block {
+  margin-bottom: 0.5rem;
+}
+
+.category-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-secondary-text, #555);
+  margin-bottom: 0.5rem;
+}

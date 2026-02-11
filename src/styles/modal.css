@@ -1,0 +1,196 @@
+.default-modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10000;
+}
+
+.default-modal-box {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.default-modal-close {
+  position: absolute;
+  top: 0.5rem; right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Custom Scrollbar Styles */
+.default-modal-box::-webkit-scrollbar {
+  width: 15px;
+  border-radius: 20px;
+}
+
+.default-modal-box::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 50px;
+}
+
+.default-modal-box::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+}
+
+.default-modal-box::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* For Firefox */
+.default-modal-box {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+
+/* Delete Person Modal Styles */
+.delete-modal {
+  max-width: 600px;
+  width: 90vw;
+}
+
+.person-info {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.person-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.delete-mode-selector {
+  margin-bottom: 1.5rem;
+}
+
+.mode-option {
+  display: flex;
+  align-items: flex-start;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-option:hover {
+  border-color: #007bff;
+  background: #f8f9ff;
+}
+
+.mode-option input[type="radio"] {
+  margin-right: 1rem;
+  margin-top: 0.2rem;
+}
+
+.mode-content strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.mode-content p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.preview-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+}
+
+.preview-info .warning {
+  margin: 0 0 0.5rem 0;
+  color: #856404;
+  font-weight: 600;
+}
+
+.preview-info ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.preview-info li {
+  color: #856404;
+}
+
+.confirmation-section {
+  margin-top: 1.5rem;
+}
+
+.confirmation-warning {
+  padding: 1.5rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.confirmation-warning h4 {
+  margin: 0 0 1rem 0;
+  color: #721c24;
+}
+
+.confirmation-warning p {
+  margin: 0 0 1rem 0;
+  color: #721c24;
+}
+
+.confirmation-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #dc3545;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+.confirmation-input:focus {
+  outline: none;
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-danger {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c82333;
+  border-color: #bd2130;
+}
+
+.btn-danger:disabled {
+  background: #6c757d;
+  border-color: #6c757d;
+  opacity: 0.6;
+  cursor: not-allowed;
+}

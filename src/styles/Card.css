@@ -1,0 +1,129 @@
+.card-container {
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: auto;
+  background-color: white;
+  max-width: 100%;
+  transition: box-shadow 0.2s ease;
+}
+
+
+
+.card-container.shadow {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+
+
+/* Position utilities */
+.pos-top-left {
+  top: 0;
+  left: 0;
+}
+.pos-top-center {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.pos-top-right {
+  top: 0;
+  right: 0;
+}
+.pos-bottom-left {
+  bottom: 0;
+  left: 0;
+}
+.pos-bottom-center {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.pos-bottom-right {
+  bottom: 0;
+  right: 0;
+}
+.pos-left-center {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.pos-right-center {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.pos-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Card.css */
+
+.card-scroll-horizontal {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+
+.card-scroll-vertical {
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for card scroll vertical */
+.card-scroll-vertical::-webkit-scrollbar {
+  width: 10px;
+}
+
+.card-scroll-vertical::-webkit-scrollbar-track {
+  background: var(--color-gray);
+}
+
+.card-scroll-vertical::-webkit-scrollbar-thumb {
+  background: rgba(22, 163, 74, 0.3);
+  border-radius: 3px;
+}
+
+.card-scroll-vertical::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary2)
+}
+
+/* Optional: Hide scrollbar visually but still usable */
+.card-scroll-horizontal::-webkit-scrollbar,
+.card-scroll-vertical::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.card-scroll-horizontal::-webkit-scrollbar-thumb,
+.card-scroll-vertical::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-container {
+    padding: 0.75rem;
+    border-radius: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-container {
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+}
