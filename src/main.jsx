@@ -35,6 +35,9 @@ import Loading from "./components/Loading.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 
+// ── NEW: AWS S3 Backup & Recovery page ──────────────────────────────────────
+import BackupPage from "./pages/BackupPage.jsx";
+
 // Component to handle landing page routing
 const LandingRouteWrapper = ({ children }) => {
   const { currentUser, loading } = useAuth();
@@ -44,7 +47,6 @@ const LandingRouteWrapper = ({ children }) => {
   }
 
   if (currentUser) {
-    // Redirect logged in users to their tree context
     return <RedirectToTree />;
   }
 
@@ -55,26 +57,23 @@ const LandingRouteWrapper = ({ children }) => {
 const RedirectToNestedRoute = ({ targetPath }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   useEffect(() => {
-    // Try to get treeId from URL first
     const pathMatch = location.pathname.match(/\/family-tree\/([^/]+)/);
     let treeId = pathMatch ? pathMatch[1] : null;
-    
-    // If not in URL, try to get from localStorage
+
     if (!treeId) {
       treeId = localStorage.getItem('currentTreeId');
     }
-    
-    // Final fallback to my-trees if no treeId
+
     if (!treeId) {
       navigate('/my-trees', { replace: true });
       return;
     }
-    
+
     navigate(`/family-tree/${treeId}${targetPath}`, { replace: true });
   }, [navigate, location.pathname, targetPath]);
-  
+
   return <div>Redirecting...</div>;
 };
 
@@ -88,74 +87,78 @@ const router = createBrowserRouter([
     ),
     errorElement: <Custom404Page />,
   },
+  {
+    path: "/family-tree/:treeId",
+    element: <App />,
+    errorElement: <Custom404Page />,
+    children: [
       {
-        path: "/family-tree/:treeId",
-        element: <App />,
-        errorElement: <Custom404Page />,
+        index: true,
+        element: <FamilyTreePage />,
+      },
+      {
+        path: "deleted-persons",
+        element: <DeletedPersonsPage />,
+      },
+      {
+        path: "export",
+        element: <ExportPage />,
+      },
+      {
+        path: "members",
+        element: <MembersPage />,
+      },
+      {
+        path: "invites",
+        element: <InvitesPage />,
+      },
+      {
+        path: "invites/:inviteId",
+        element: <InvitesPage />,
+      },
+      {
+        path: "notificationcenter",
+        element: <NotificationCenter />,
         children: [
           {
             index: true,
-            element: <FamilyTreePage />,
+            element: <NotificationOverviewPage />,
           },
           {
-            path: "deleted-persons",
-            element: <DeletedPersonsPage />,
+            path: "suggestions",
+            element: <SuggestionsPage />,
           },
           {
-            path: "export",
-            element: <ExportPage />,
+            path: "merge",
+            element: <div>Merge Requests Content</div>,
           },
           {
-            path: "members",
-            element: <MembersPage />,
+            path: "requests",
+            element: <PendingRequestsPage />,
           },
           {
-            path: "invites",
-            element: <InvitesPage />,
+            path: "activity",
+            element: <FamilyActivityPage />,
           },
-          {
-            path: "invites/:inviteId",
-            element: <InvitesPage />,
-          },
-          {
-            path: "notificationcenter",
-            element: <NotificationCenter />,
-            children: [
-              {
-                index: true,
-                element: <NotificationOverviewPage />,
-              },
-              {
-                path: "suggestions",
-                element: <SuggestionsPage />,
-              },
-              {
-                path: "merge",
-                element: <div>Merge Requests Content</div>,
-              },
-              {
-                path: "requests",
-                element: <PendingRequestsPage />,
-              },
-              {
-                path: "activity",
-                element: <FamilyActivityPage />,
-              },
-            ],
-          },
-          {
-            path: "settings",
-            element: <TreeSettingsPage />,
-          },
-
         ],
       },
+      {
+        path: "settings",
+        element: <TreeSettingsPage />,
+      },
+
+      // ── AWS S3 Backup (nested inside a tree context) ─────────────────────
+      {
+        path: "backup",
+        element: <BackupPage />,
+      },
+    ],
+  },
   {
     path: "/members",
     element: <App />,
     errorElement: <Custom404Page />,
   },
-
   {
     path: "/settings",
     element: <App />,
@@ -181,9 +184,9 @@ const router = createBrowserRouter([
     element: <MyTreesPage />,
     errorElement: <Custom404Page />,
   },
-   {
+  {
     path: "/profile",
-    element: <UserProfile />, 
+    element: <UserProfile />,
     errorElement: <Custom404Page />,
   },
   {
@@ -232,7 +235,6 @@ const router = createBrowserRouter([
     element: <PublicTreePage />,
     errorElement: <Custom404Page />,
   },
-
 ]);
 
 createRoot(document.getElementById("root")).render(
