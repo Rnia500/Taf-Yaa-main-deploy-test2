@@ -1,95 +1,101 @@
 // src/services/backupService.js
 // AWS S3 Backup & Recovery service for Taf'Yaa
-// Communicates with: /.netlify/functions/s3-backup
+// Calls AWS Lambda via API Gateway
 
+// ─── API URL ──────────────────────────────────────────────────────────────────
+// After you deploy the Lambda and create the API Gateway,
+// paste your API Gateway URL here:
+const API_URL = import.meta.env.VITE_BACKUP_API_URL || '';
+
+// Helper — throws a clear error if API_URL is not configured yet
+function checkConfig() {
+  if (!API_URL) {
+    throw new Error(
+      'Backup API not configured yet. Please add VITE_BACKUP_API_URL to your .env file.'
+    );
+  }
+}
+
+// ─── Safe fetch wrapper ───────────────────────────────────────────────────────
+async function apiFetch(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...options.headers },
+  });
+
+  const text = await response.text();
+
+  // Guard against empty responses (e.g. when function not running locally)
+  if (!text || text.trim() === '') {
+    throw new Error('No response from backup server. Make sure the Lambda function is deployed.');
+  }
+
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid response from server: ${text.slice(0, 100)}`);
+  }
+
+  if (!response.ok) {
+    throw new Error(data.error || data.message || 'Request failed');
+  }
+
+  return data;
+}
+
+// ─── Backup Service ───────────────────────────────────────────────────────────
 export const backupService = {
 
-  // ── Create a new backup ──────────────────────────────────────────────────
+  // Create a full backup and upload to S3
   async createBackup(userId) {
-    const response = await fetch('/.netlify/functions/s3-backup?action=create', {
+    checkConfig();
+    return apiFetch(`${API_URL}?action=create`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId }),
     });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Failed to create backup');
-    return data;
   },
 
-  // ── List all backups for a user ──────────────────────────────────────────
+  // List all backups for a user
   async listBackups(userId) {
-    const response = await fetch(
-      `/.netlify/functions/s3-backup?action=list&userId=${userId}`
-    );
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Failed to list backups');
+    checkConfig();
+    const data = await apiFetch(`${API_URL}?action=list&userId=${userId}`);
     return data.backups;
   },
 
-  // ── Get a signed download URL for a backup ───────────────────────────────
+  // Get a signed download URL for a specific backup
   async getDownloadUrl(key) {
-    const response = await fetch('/.netlify/functions/s3-backup?action=download', {
+    checkConfig();
+    const data = await apiFetch(`${API_URL}?action=download`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key }),
     });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Failed to get download URL');
     return data.url;
   },
 
-  // ── Restore a backup from S3 into Firestore ──────────────────────────────
+  // Restore a backup from S3 into Firestore
   async restoreBackup(key, userId) {
-    const response = await fetch('/.netlify/functions/s3-backup?action=restore', {
+    checkConfig();
+    return apiFetch(`${API_URL}?action=restore`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, userId }),
     });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Failed to restore backup');
-    return data;
   },
 
-  // ── Delete a backup from S3 ──────────────────────────────────────────────
+  // Delete a backup from S3
   async deleteBackup(key) {
-    const response = await fetch('/.netlify/functions/s3-backup?action=delete', {
+    checkConfig();
+    return apiFetch(`${API_URL}?action=delete`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key }),
     });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Failed to delete backup');
-    return data;
   },
 
-  // ── Format file size to human readable ──────────────────────────────────
+  // Format bytes to readable size
   formatSize(bytes) {
+    if (!bytes) return '—';
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-  },
-
-  // ── Format S3 key to readable backup name ────────────────────────────────
-  formatBackupName(key) {
-    // key looks like: backups/userId/2026-04-09T12-30-00-000Z.json
-    const filename = key.split('/').pop().replace('.json', '');
-    try {
-      // Try to parse as date
-      const dateStr = filename
-        .replace(/^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2}).*/, '$1 $2:$3:$4');
-      const date = new Date(dateStr);
-      if (!isNaN(date)) {
-        return date.toLocaleString('en-GB', {
-          day: '2-digit', month: 'short', year: 'numeric',
-          hour: '2-digit', minute: '2-digit',
-        });
-      }
-    } catch (_) { /* fallback */ }
-    return filename;
   },
 };
