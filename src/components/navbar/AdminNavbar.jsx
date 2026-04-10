@@ -16,7 +16,8 @@ import {
   EarthIcon,
   Settings,
   Bell, Trash2,
-  ArrowDownToLine, User, LogOut, Shield, TreePine
+  ArrowDownToLine, User, LogOut, Shield, TreePine,
+  CloudUpload
 } from 'lucide-react';
 import Card from '../../layout/containers/Card';
 import '../../styles/Navbar.css';
@@ -120,12 +121,14 @@ export default function AdminNavbar() {
     { label: t('navbar.invites'), href: `/family-tree/${currentTreeId}/invites` },
     { label: t('navbar.notification_center'), href: `/family-tree/${currentTreeId}/notificationcenter` },
     { label: t('navbar.tree_settings'), href: `/family-tree/${currentTreeId}/settings` },
+    { label: 'Backup', href: `/family-tree/${currentTreeId}/backup` },
   ];
 
   const MobileNavItems = [
     { label: t('navbar.tree_view'), href: `/family-tree/${currentTreeId}` },
     { label: t('navbar.members'), href: `/family-tree/${currentTreeId}/members` },
     { label: t('navbar.deleted_persons'), href: `/family-tree/${currentTreeId}/deleted-persons` },
+    { label: 'Backup', href: `/family-tree/${currentTreeId}/backup` },
   ];
 
   return (
@@ -180,6 +183,14 @@ export default function AdminNavbar() {
               <div className="action-btn" onClick={() => openModal('pdfExportModal')}>
                 <ArrowDownToLine size={20} color="var(--color-primary-text)"  />
               </div>
+
+              <NavLink
+                to={`/family-tree/${currentTreeId}/backup`}
+                className={({ isActive }) => `action-btn ${isActive ? 'active' : ''}`}
+                title="Backup & Recovery (AWS S3)"
+              >
+                <CloudUpload size={20} color="var(--color-primary-text)" />
+              </NavLink>
 
               <div
                 className={`action-btn ${activeButton === 'profile' ? 'active' : ''}`}
