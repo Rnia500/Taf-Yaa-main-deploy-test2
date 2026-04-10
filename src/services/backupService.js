@@ -99,3 +99,4 @@ export const backupService = {
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   },
 };
+console.log("API_URL:", API_URL);
