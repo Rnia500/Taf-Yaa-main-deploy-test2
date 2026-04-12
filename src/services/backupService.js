@@ -1,22 +1,18 @@
 // src/services/backupService.js
 // AWS S3 Backup & Recovery service for Taf'Yaa
-// Calls AWS Lambda via API Gateway
 
-// ─── API URL ──────────────────────────────────────────────────────────────────
-// After you deploy the Lambda and create the API Gateway,
-// paste your API Gateway URL here:
+// ─── Your API Gateway URL ─────────────────────────────────────────────────────
+// This reads from your .env file (VITE_BACKUP_API_URL)
 const API_URL = import.meta.env.VITE_BACKUP_API_URL || '';
 
-// Helper — throws a clear error if API_URL is not configured yet
+// ─── Check URL is configured ──────────────────────────────────────────────────
 function checkConfig() {
   if (!API_URL) {
-    throw new Error(
-      'Backup API not configured yet. Please add VITE_BACKUP_API_URL to your .env file.'
-    );
+    throw new Error('Backup API not configured. Add VITE_BACKUP_API_URL to your .env and Amplify env variables.');
   }
 }
 
-// ─── Safe fetch wrapper ───────────────────────────────────────────────────────
+// ─── Safe fetch that gives readable errors ────────────────────────────────────
 async function apiFetch(url, options = {}) {
   const response = await fetch(url, {
     ...options,
@@ -25,16 +21,15 @@ async function apiFetch(url, options = {}) {
 
   const text = await response.text();
 
-  // Guard against empty responses (e.g. when function not running locally)
   if (!text || text.trim() === '') {
-    throw new Error('No response from backup server. Make sure the Lambda function is deployed.');
+    throw new Error('No response from backup server. Check that your Lambda is deployed.');
   }
 
   let data;
   try {
     data = JSON.parse(text);
   } catch {
-    throw new Error(`Invalid response from server: ${text.slice(0, 100)}`);
+    throw new Error(`Invalid response: ${text.slice(0, 100)}`);
   }
 
   if (!response.ok) {
@@ -47,7 +42,7 @@ async function apiFetch(url, options = {}) {
 // ─── Backup Service ───────────────────────────────────────────────────────────
 export const backupService = {
 
-  // Create a full backup and upload to S3
+  // Create a full backup → uploads to S3
   async createBackup(userId) {
     checkConfig();
     return apiFetch(`${API_URL}?action=create`, {
@@ -56,14 +51,14 @@ export const backupService = {
     });
   },
 
-  // List all backups for a user
+  // List all backups for a user from S3
   async listBackups(userId) {
     checkConfig();
     const data = await apiFetch(`${API_URL}?action=list&userId=${userId}`);
     return data.backups;
   },
 
-  // Get a signed download URL for a specific backup
+  // Get a signed download URL for a specific backup file
   async getDownloadUrl(key) {
     checkConfig();
     const data = await apiFetch(`${API_URL}?action=download`, {
@@ -91,7 +86,7 @@ export const backupService = {
     });
   },
 
-  // Format bytes to readable size
+  // Format bytes → readable size
   formatSize(bytes) {
     if (!bytes) return '—';
     if (bytes < 1024) return `${bytes} B`;
@@ -99,4 +94,3 @@ export const backupService = {
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   },
 };
-console.log("API_URL:", API_URL);
