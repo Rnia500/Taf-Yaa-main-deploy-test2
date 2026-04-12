@@ -121,14 +121,12 @@ export default function AdminNavbar() {
     { label: t('navbar.invites'), href: `/family-tree/${currentTreeId}/invites` },
     { label: t('navbar.notification_center'), href: `/family-tree/${currentTreeId}/notificationcenter` },
     { label: t('navbar.tree_settings'), href: `/family-tree/${currentTreeId}/settings` },
-    { label: 'Backup', href: `/family-tree/${currentTreeId}/backup` },
   ];
 
   const MobileNavItems = [
     { label: t('navbar.tree_view'), href: `/family-tree/${currentTreeId}` },
     { label: t('navbar.members'), href: `/family-tree/${currentTreeId}/members` },
     { label: t('navbar.deleted_persons'), href: `/family-tree/${currentTreeId}/deleted-persons` },
-    { label: 'Backup', href: `/family-tree/${currentTreeId}/backup` },
   ];
 
   return (
@@ -370,4 +368,3 @@ export default function AdminNavbar() {
     </nav>
   );
 }
-//test change
