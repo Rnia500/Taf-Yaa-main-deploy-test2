@@ -10,7 +10,8 @@ import FamilyConnections from './ProfileSidebarComponents/FamilyConnections';
 import TimelineEvents from './ProfileSidebarComponents/TimelineEvents';
 import Stories from './ProfileSidebarComponents/Story';
 import PhotoMemorySection from './ProfileSidebarComponents/PhotoMemorySection';
-import RecordModal from './RecordModal/RecordModal'
+import RecordModal from './RecordModal/RecordModal';
+import VoiceStoryRecorder from '../VoiceStoryRecorder';
 import AddEditEvent from '../AddEditEvent';
 import useSidebarStore from '../../store/useSidebarStore';
 import useModalStore from '../../store/useModalStore';
@@ -41,6 +42,7 @@ export default function ProfileSidebar() {
   const [photos, setPhotos] = useState([]);
   const [peopleNameMap, setPeopleNameMap] = useState({});
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
+  const [isVoiceRecorderOpen, setIsVoiceRecorderOpen] = useState(false);
   const [isAddEditEventModalOpen, setIsAddEditEventModalOpen] = useState(false);
   const [isPhotoUploadOpen, setIsPhotoUploadOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -403,13 +405,30 @@ export default function ProfileSidebar() {
       <Spacer size='md' />
 
       <Stories
-        stories={audioStories}
-        onRecord={handleRecordAudio}
-        onTranscribe={() => alert('Transcribe clicked')}
-        personId={activeProfileId}
-        treeId={treeId}
-        addedBy={currentUser?.uid || "user1"}
-      />
+  stories={audioStories}
+  onRecord={handleRecordAudio}
+  onTranscribe={() => setIsVoiceRecorderOpen(prev => !prev)}
+  personId={activeProfileId}
+  treeId={treeId}
+  addedBy={currentUser?.uid || "user1"}
+/>
+
+{isVoiceRecorderOpen && (
+  <VoiceStoryRecorder
+    treeId={treeId}
+    personId={activeProfileId}
+    personName={profileData.profileName}
+    onStorySaved={({ storyId, transcript }) => {
+      setIsVoiceRecorderOpen(false);
+      // Reload stories to show the new one
+      dataService.getStoriesByPersonId(activeProfileId, treeId)
+        .then(stories => setAudioStories(stories || []));
+    }}
+    onTranscript={(text) => {
+      setIsVoiceRecorderOpen(false);
+    }}
+  />
+)}
       <Spacer size='md' />
 
       <RecordModal
