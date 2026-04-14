@@ -8,7 +8,7 @@ import StoryCard from '../../StoryCard';
 import StoryModal from '../../modals/StoryModal';
 import CreateStoryModal from '../../modals/CreateStoryModal';
 
-function Stories({ stories = [], onRecord, _onTranscribe, isSideBar = true, showRecordButton = true, selectedIndex = null, onSelect = () => {}, personId, treeId, addedBy, onStoriesUpdate }) {
+function Stories({ stories = [], onRecord, onTranscribe, isSideBar = true, showRecordButton = true, selectedIndex = null, onSelect = () => {}, personId, treeId, addedBy, onStoriesUpdate }) {
   const [selectedStory, setSelectedStory] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -76,12 +76,15 @@ function Stories({ stories = [], onRecord, _onTranscribe, isSideBar = true, show
 
         <Spacer size='sm' />
         {showRecordButton && (
-          <Row gap='1rem' padding='0.5rem'>
-            <Button variant='primary' fullWidth onClick={handleCreateStory}>
-              Create Story
-            </Button>
-          </Row>
-        )}
+  <Row gap='1rem' padding='0.5rem'>
+    <Button variant='primary' fullWidth onClick={handleCreateStory}>
+      Create Story
+    </Button>
+    <Button variant='secondary' fullWidth onClick={onTranscribe}>
+      🎙️ Voice to Text
+    </Button>
+  </Row>
+)}
       </Card>
 
       {/* Story Modal */}
