@@ -1,5 +1,6 @@
 // src/services/transcribeService.js
-// Taf'Yaa — AWS Transcribe Voice-to-Text Service
+// Taf'Yaa — AWS Transcribe Service (v2 - base64 approach, no direct S3 upload)
+// Audio is sent as base64 directly to Lambda — no S3 CORS issues!
 
 const API_URL = import.meta.env.VITE_TRANSCRIBE_API_URL || '';
 
@@ -13,64 +14,56 @@ async function apiFetch(url, options = {}) {
     headers: { 'Content-Type': 'application/json', ...options.headers },
   });
   const text = await res.text();
-  if (!text) throw new Error('No response from transcribe server.');
+  if (!text) throw new Error('No response from server.');
   let data;
-  try { data = JSON.parse(text); } catch { throw new Error(`Invalid response: ${text.slice(0, 100)}`); }
+  try { data = JSON.parse(text); }
+  catch { throw new Error(`Invalid response: ${text.slice(0, 100)}`); }
   if (!res.ok) throw new Error(data.error || data.message || 'Request failed');
   return data;
 }
 
+// Convert audio blob to base64 string
+async function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // reader.result is "data:audio/webm;base64,XXXXXX"
+      // we only want the base64 part after the comma
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 export const transcribeService = {
 
-  // Step 1: Get a signed S3 URL to upload the audio blob
-  async getUploadUrl({ userId, treeId, personId, fileName, fileType }) {
-    checkConfig();
-    return apiFetch(`${API_URL}?action=get-upload-url`, {
-      method: 'POST',
-      body: JSON.stringify({ userId, treeId, personId, fileName, fileType }),
-    });
-  },
-
-  // Step 2: Upload audio blob directly to S3 using the signed URL
-  async uploadAudioToS3(signedUrl, audioBlob) {
-    const res = await fetch(signedUrl, {
-      method: 'PUT',
-      body: audioBlob,
-      headers: { 'Content-Type': audioBlob.type || 'audio/webm' },
-    });
-    if (!res.ok) throw new Error(`S3 upload failed: ${res.status}`);
-  },
-
-  // Step 3: Start transcription and wait for result
-  async transcribe({ s3Key, userId, treeId, personId, language = 'en' }) {
-    checkConfig();
-    return apiFetch(`${API_URL}?action=transcribe`, {
-      method: 'POST',
-      body: JSON.stringify({ s3Key, userId, treeId, personId, language }),
-    });
-  },
-
-  // Full pipeline: upload audio → transcribe → return text
+  // Send audio blob as base64 to Lambda → Lambda uploads to S3 → transcribes
   async processAudio({ audioBlob, userId, treeId, personId, language = 'en', onProgress }) {
     checkConfig();
 
-    // Step 1: Get upload URL
-    onProgress?.('Preparing upload…', 10);
-    const ext = audioBlob.type.includes('mp3') ? 'mp3' :
-                audioBlob.type.includes('wav') ? 'wav' : 'webm';
-    const { uploadUrl, s3Key } = await this.getUploadUrl({
-      userId, treeId, personId,
-      fileName: `recording.${ext}`,
-      fileType: audioBlob.type,
+    // Step 1: Convert audio to base64
+    onProgress?.('Preparing audio…', 15);
+    const audioBase64 = await blobToBase64(audioBlob);
+    const fileType = audioBlob.type || 'audio/webm';
+    const ext = fileType.includes('mp3') ? 'mp3' :
+                fileType.includes('wav') ? 'wav' : 'webm';
+
+    // Step 2: Send everything to Lambda in one request
+    onProgress?.('Uploading and transcribing…', 40);
+    const result = await apiFetch(`${API_URL}?action=process`, {
+      method: 'POST',
+      body: JSON.stringify({
+        audioBase64,
+        fileType,
+        fileName: `recording.${ext}`,
+        userId,
+        treeId,
+        personId,
+        language,
+      }),
     });
-
-    // Step 2: Upload to S3
-    onProgress?.('Uploading audio to cloud…', 35);
-    await this.uploadAudioToS3(uploadUrl, audioBlob);
-
-    // Step 3: Transcribe
-    onProgress?.('Transcribing your voice…', 60);
-    const result = await this.transcribe({ s3Key, userId, treeId, personId, language });
 
     onProgress?.('Done!', 100);
     return result;
