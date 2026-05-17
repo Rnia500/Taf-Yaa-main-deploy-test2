@@ -34,6 +34,7 @@ import PublicTreePage from "./pages/PublicTreePage.jsx";
 import Loading from "./components/Loading.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
+import { TranslationProvider } from "./context/TranslationContext.jsx";
 
 // ── NEW: AWS S3 Backup & Recovery page ──────────────────────────────────────
 import BackupPage from "./pages/BackupPage.jsx";
@@ -240,8 +241,10 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
+       <TranslationProvider> 
       <RouterProvider router={router} />
       <GlobalModals />
+      </TranslationProvider>
     </AuthProvider>
   </StrictMode>
 );
