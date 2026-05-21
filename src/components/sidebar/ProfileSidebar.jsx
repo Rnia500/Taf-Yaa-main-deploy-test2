@@ -415,19 +415,23 @@ export default function ProfileSidebar() {
 
 {isVoiceRecorderOpen && (
   <VoiceStoryRecorder
-    treeId={treeId}
-    personId={activeProfileId}
-    personName={profileData.profileName}
-    onStorySaved={({ storyId, transcript }) => {
-      setIsVoiceRecorderOpen(false);
-      // Reload stories to show the new one
-      dataService.getStoriesByPersonId(activeProfileId, treeId)
-        .then(stories => setAudioStories(stories || []));
-    }}
-    onTranscript={(text) => {
-      setIsVoiceRecorderOpen(false);
-    }}
-  />
+  treeId={treeId}
+  personId={activeProfileId}
+  personName={profileData.profileName}
+  onStorySaved={({ storyId, transcript }) => {
+    // Show the transcript text immediately
+    alert(`✅ Story saved!\n\n"${transcript}"`);
+    setIsVoiceRecorderOpen(false);
+    // Reload stories list
+    dataService.getStoriesByPersonId(activeProfileId, treeId)
+      .then(stories => setAudioStories(stories || []));
+  }}
+  onTranscript={(text) => {
+    // If no personId/treeId, just show the text
+    alert(`✅ Transcript:\n\n"${text}"`);
+    setIsVoiceRecorderOpen(false);
+  }}
+/>
 )}
       <Spacer size='md' />
 
