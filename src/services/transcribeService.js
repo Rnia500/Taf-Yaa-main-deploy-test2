@@ -1,6 +1,7 @@
 // src/services/transcribeService.js
-// Taf'Yaa — AWS Transcribe Service (v2 - base64 approach, no direct S3 upload)
-// Audio is sent as base64 directly to Lambda — no S3 CORS issues!
+// Taf'Yaa — Transcribe Service (v3 - dual engine)
+// AWS Transcribe → main languages (EN, FR, AR, ES, DE, PT)
+// OpenAI Whisper → African languages (HA, YO, SW, AM, ZU, IG, SO)
 
 const API_URL = import.meta.env.VITE_TRANSCRIBE_API_URL || '';
 
@@ -22,36 +23,42 @@ async function apiFetch(url, options = {}) {
   return data;
 }
 
-// Convert audio blob to base64 string
+// Convert audio blob to base64
 async function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      // reader.result is "data:audio/webm;base64,XXXXXX"
-      // we only want the base64 part after the comma
-      const base64 = reader.result.split(',')[1];
-      resolve(base64);
-    };
+    reader.onload = () => resolve(reader.result.split(',')[1]);
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
 }
 
+// AWS Transcribe languages
+const AWS_LANGUAGES = new Set(['en', 'fr', 'ar', 'es', 'de', 'pt']);
+
+// OpenAI Whisper languages (African + others)
+const WHISPER_LANGUAGES = new Set(['ha', 'yo', 'sw', 'am', 'zu', 'ig', 'so']);
+
 export const transcribeService = {
 
-  // Send audio blob as base64 to Lambda → Lambda uploads to S3 → transcribes
-  async processAudio({ audioBlob, userId, treeId, personId, language = 'en', onProgress }) {
+  // Main process function — picks engine automatically based on language
+  async processAudio({ audioBlob, userId, treeId, personId, language = 'en', engine, onProgress }) {
     checkConfig();
 
-    // Step 1: Convert audio to base64
+    // Determine which engine to use
+    const useEngine = engine ||
+      (AWS_LANGUAGES.has(language) ? 'aws' :
+       WHISPER_LANGUAGES.has(language) ? 'whisper' : 'aws');
+
+    // Convert audio to base64
     onProgress?.('Preparing audio…', 15);
     const audioBase64 = await blobToBase64(audioBlob);
     const fileType = audioBlob.type || 'audio/webm';
     const ext = fileType.includes('mp3') ? 'mp3' :
                 fileType.includes('wav') ? 'wav' : 'webm';
 
-    // Step 2: Send everything to Lambda in one request
-    onProgress?.('Uploading and transcribing…', 40);
+    onProgress?.(`Uploading and transcribing with ${useEngine === 'whisper' ? 'OpenAI Whisper' : 'AWS Transcribe'}…`, 40);
+
     const result = await apiFetch(`${API_URL}?action=process`, {
       method: 'POST',
       body: JSON.stringify({
@@ -62,6 +69,7 @@ export const transcribeService = {
         treeId,
         personId,
         language,
+        engine: useEngine,
       }),
     });
 
@@ -69,13 +77,26 @@ export const transcribeService = {
     return result;
   },
 
-  // Supported languages
+  // All supported languages
   languages: [
-    { code: 'en', label: 'English' },
-    { code: 'fr', label: 'French' },
-    { code: 'ar', label: 'Arabic' },
-    { code: 'es', label: 'Spanish' },
-    { code: 'de', label: 'German' },
-    { code: 'pt', label: 'Portuguese' },
+    // AWS Transcribe
+    { code: 'en', name: 'English',    flag: '🇬🇧', engine: 'aws'     },
+    { code: 'fr', name: 'French',     flag: '🇫🇷', engine: 'aws'     },
+    { code: 'ar', name: 'Arabic',     flag: '🇸🇦', engine: 'aws'     },
+    { code: 'es', name: 'Spanish',    flag: '🇪🇸', engine: 'aws'     },
+    { code: 'de', name: 'German',     flag: '🇩🇪', engine: 'aws'     },
+    { code: 'pt', name: 'Portuguese', flag: '🇧🇷', engine: 'aws'     },
+    // OpenAI Whisper (African)
+    { code: 'ha', name: 'Hausa',      flag: '🌍', engine: 'whisper'  },
+    { code: 'yo', name: 'Yoruba',     flag: '🌍', engine: 'whisper'  },
+    { code: 'sw', name: 'Swahili',    flag: '🌍', engine: 'whisper'  },
+    { code: 'am', name: 'Amharic',    flag: '🌍', engine: 'whisper'  },
+    { code: 'zu', name: 'Zulu',       flag: '🌍', engine: 'whisper'  },
+    { code: 'ig', name: 'Igbo',       flag: '🌍', engine: 'whisper'  },
+    { code: 'so', name: 'Somali',     flag: '🌍', engine: 'whisper'  },
+    // Manual fallback
+    { code: 'ff', name: 'Fulfulde',   flag: '🌍', engine: 'manual'  },
+    { code: 'bm', name: 'Bambara',    flag: '🌍', engine: 'manual'  },
+    { code: 'ln', name: 'Lingala',    flag: '🌍', engine: 'manual'  },
   ],
 };
