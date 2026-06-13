@@ -35,8 +35,9 @@ import Loading from "./components/Loading.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { TranslationProvider } from "./context/TranslationContext.jsx";
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 
-// ── NEW: AWS S3 Backup & Recovery page ──────────────────────────────────────
+// AWS S3 Backup & Recovery page ──────────────────────────────────────
 import BackupPage from "./pages/BackupPage.jsx";
 
 // Component to handle landing page routing
@@ -231,6 +232,13 @@ const router = createBrowserRouter([
     element: <SearchTreesPage />,
     errorElement: <Custom404Page />,
   },
+
+  { 
+    path: 'family-tree/:treeId/analytics', 
+    element: <AnalyticsDashboard />,
+    errorElement: <Custom404Page />,
+  },
+
   {
     path: "/public-tree/:treeId",
     element: <PublicTreePage />,

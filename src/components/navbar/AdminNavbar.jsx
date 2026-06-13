@@ -17,7 +17,8 @@ import {
   Settings,
   Bell, Trash2,
   ArrowDownToLine, User, LogOut, Shield, TreePine,
-  CloudUpload
+  CloudUpload,
+  BarChart3
 } from 'lucide-react';
 import Card from '../../layout/containers/Card';
 import '../../styles/Navbar.css';
@@ -172,6 +173,7 @@ export default function AdminNavbar() {
                 <EarthIcon size={20} color="var(--color-primary-text)" />
               </div>
 
+        
               <LanguageMenu
                 isOpen={langMenuOpen}
                 onClose={closeLanguageMenu}
@@ -190,6 +192,14 @@ export default function AdminNavbar() {
                 <CloudUpload size={20} color="var(--color-primary-text)" />
               </NavLink>
 
+              <NavLink
+                to={`/family-tree/${currentTreeId}/analytics`}
+                className={({ isActive }) => `action-btn ${isActive ? 'active' : ''}`}
+                title="Analytics Dashboard"
+              >
+                <BarChart3 size={20} color="var(--color-primary-text)" />
+              </NavLink>
+              
               <div
                 className={`action-btn ${activeButton === 'profile' ? 'active' : ''}`}
                 onClick={toggleSubmenu}
