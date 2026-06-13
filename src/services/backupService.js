@@ -1,5 +1,10 @@
-// src/services/backupService.js
+// src/services/backupService.js (v3 - supports name + description + type)
+
 const API_URL = import.meta.env.VITE_BACKUP_API_URL || '';
+
+function checkConfig() {
+  if (!API_URL) throw new Error('VITE_BACKUP_API_URL not configured.');
+}
 
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, {
@@ -16,20 +21,26 @@ async function apiFetch(url, options = {}) {
 }
 
 export const backupService = {
+
+  // List all backups for a user
   async listBackups(userId) {
+    checkConfig();
     const data = await apiFetch(`${API_URL}?action=list&userId=${userId}`);
     return data.backups || [];
   },
 
-  // customName is now passed and stored in S3 metadata
-  async createBackup(userId, customName = '') {
+  // Create a backup with custom name, description, type
+  async createBackup(userId, customName = '', description = '', backupType = 'manual') {
+    checkConfig();
     return apiFetch(`${API_URL}?action=create`, {
       method: 'POST',
-      body: JSON.stringify({ userId, customName }),
+      body: JSON.stringify({ userId, customName, description, backupType }),
     });
   },
 
+  // Get signed download URL
   async getDownloadUrl(key) {
+    checkConfig();
     const data = await apiFetch(`${API_URL}?action=download`, {
       method: 'POST',
       body: JSON.stringify({ key }),
@@ -37,14 +48,18 @@ export const backupService = {
     return data.url;
   },
 
+  // Restore a backup
   async restoreBackup(key, userId) {
+    checkConfig();
     return apiFetch(`${API_URL}?action=restore`, {
       method: 'POST',
       body: JSON.stringify({ key, userId }),
     });
   },
 
+  // Delete a backup
   async deleteBackup(key) {
+    checkConfig();
     return apiFetch(`${API_URL}?action=delete`, {
       method: 'POST',
       body: JSON.stringify({ key }),

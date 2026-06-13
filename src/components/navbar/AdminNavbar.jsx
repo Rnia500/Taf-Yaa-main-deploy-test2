@@ -187,7 +187,7 @@ export default function AdminNavbar() {
               <NavLink
                 to={`/family-tree/${currentTreeId}/backup`}
                 className={({ isActive }) => `action-btn ${isActive ? 'active' : ''}`}
-                title="Backup & Recovery (AWS S3)"
+                title="Backup & Recovery"
               >
                 <CloudUpload size={20} color="var(--color-primary-text)" />
               </NavLink>
@@ -199,7 +199,15 @@ export default function AdminNavbar() {
               >
                 <BarChart3 size={20} color="var(--color-primary-text)" />
               </NavLink>
-              
+
+               <NavLink
+                to={`/family-tree/${currentTreeId}/admin`}
+                className={({ isActive }) => `action-btn ${isActive ? 'active' : ''}`}
+                title="Admin Dashboard"
+              >
+                <BarChart3 size={20} color="var(--color-primary-text)" />
+              </NavLink>
+
               <div
                 className={`action-btn ${activeButton === 'profile' ? 'active' : ''}`}
                 onClick={toggleSubmenu}

@@ -36,6 +36,7 @@ import UserProfile from "./pages/UserProfile.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { TranslationProvider } from "./context/TranslationContext.jsx";
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 
 // AWS S3 Backup & Recovery page ──────────────────────────────────────
 import BackupPage from "./pages/BackupPage.jsx";
@@ -234,8 +235,14 @@ const router = createBrowserRouter([
   },
 
   { 
-    path: 'family-tree/:treeId/analytics', 
+    path: "/family-tree/:treeId/analytics", 
     element: <AnalyticsDashboard />,
+    errorElement: <Custom404Page />,
+  },
+
+  { 
+    path: "/family-tree/:treeId/admin",
+    element: <AdminDashboard />, 
     errorElement: <Custom404Page />,
   },
 

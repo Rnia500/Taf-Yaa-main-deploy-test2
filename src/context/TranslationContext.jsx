@@ -1,8 +1,6 @@
-// Auto-translates ALL user content when i18next language switches
-
+// src/context/TranslationContext.jsx (v2 - fixed, works properly)
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { translateService } from '../services/translateService';
 
 const TranslationContext = createContext();
 
@@ -12,83 +10,74 @@ export const useContentTranslation = () => {
   return ctx;
 };
 
-// In-memory cache: avoid re-translating same text + language
-const cache = new Map();
-const cacheKey = (text, lang) => `${lang}::${String(text).trim()}`;
+const API_URL = import.meta.env.VITE_TRANSLATE_API_URL || '';
 
-// Languages AWS Translate supports (mapped from i18next codes)
+// Simple in-memory cache
+const cache = new Map();
+
+// Languages supported by AWS Translate
 const SUPPORTED = new Set([
-  'fr','es','ar','de','pt','it','ru','ja','ko','zh','hi','sw','yo','ha'
+  'fr','es','ar','de','pt','it','ru','ja','ko','zh','hi','sw','ha','yo','am','so','zu','ff'
 ]);
+
+async function callTranslateAPI(text, targetLang) {
+  if (!API_URL) return text;
+  const key = `${targetLang}::${text.trim()}`;
+  if (cache.has(key)) return cache.get(key);
+
+  try {
+    const res = await fetch(`${API_URL}?action=translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, targetLang, sourceLang: 'auto' }),
+    });
+    if (!res.ok) return text;
+    const data = await res.json();
+    const translated = data.translated || text;
+    cache.set(key, translated);
+    return translated;
+  } catch {
+    return text;
+  }
+}
 
 export const TranslationProvider = ({ children }) => {
   const { i18n } = useTranslation();
-  const [currentLang, setCurrentLang] = useState(
-    i18n.language?.split('-')[0] || 'en'
-  );
-  const [isTranslating, setIsTranslating] = useState(false);
+  const [currentLang, setCurrentLang] = useState(i18n.language?.split('-')[0] || 'en');
 
-  // Listen to i18next language changes
   useEffect(() => {
     const handler = (lang) => {
       const code = lang.split('-')[0];
       setCurrentLang(code);
-      cache.clear(); // clear cache so everything re-translates
+      cache.clear();
     };
     i18n.on('languageChanged', handler);
     return () => i18n.off('languageChanged', handler);
   }, [i18n]);
 
-  // Translate a single text string
-  const translateText = useCallback(async (text, targetLang) => {
-    const lang = targetLang || currentLang;
-
-    // Return original if English or not supported
-    if (!text || !text.trim() || lang === 'en' || !SUPPORTED.has(lang)) {
-      return text || '';
-    }
-
-    const key = cacheKey(text, lang);
-    if (cache.has(key)) return cache.get(key);
-
-    try {
-      const translated = await translateService.translateText(text, lang, 'auto');
-      cache.set(key, translated);
-      return translated;
-    } catch (err) {
-      console.warn('Translation failed for:', text?.substring(0, 30), err.message);
-      return text; // fallback to original
-    }
+  const translateText = useCallback(async (text) => {
+    if (!text?.trim()) return text || '';
+    if (currentLang === 'en' || !SUPPORTED.has(currentLang)) return text;
+    return callTranslateAPI(text, currentLang);
   }, [currentLang]);
 
-  // Translate multiple fields at once
-  const translateFields = useCallback(async (fields, targetLang) => {
-    const lang = targetLang || currentLang;
-    if (lang === 'en' || !SUPPORTED.has(lang)) return fields;
-
+  const translateFields = useCallback(async (fields) => {
+    if (currentLang === 'en' || !SUPPORTED.has(currentLang)) return fields;
     const result = { ...fields };
     await Promise.all(
       Object.entries(fields).map(async ([key, value]) => {
         if (value && typeof value === 'string' && value.trim()) {
-          result[key] = await translateText(value, lang);
+          result[key] = await callTranslateAPI(value, currentLang);
         }
       })
     );
     return result;
-  }, [currentLang, translateText]);
+  }, [currentLang]);
 
-  const isEnglish = currentLang === 'en';
-  const needsTranslation = !isEnglish && SUPPORTED.has(currentLang);
+  const needsTranslation = currentLang !== 'en' && SUPPORTED.has(currentLang);
 
   return (
-    <TranslationContext.Provider value={{
-      currentLang,
-      isTranslating,
-      isEnglish,
-      needsTranslation,
-      translateText,
-      translateFields,
-    }}>
+    <TranslationContext.Provider value={{ currentLang, translateText, translateFields, needsTranslation }}>
       {children}
     </TranslationContext.Provider>
   );
