@@ -13,6 +13,7 @@ import {
   createMonogamousEdge,
   createPolygamousEdge,
   createEdgeWithGuard,
+  resetEdgeSeen,
 } from './edgeHelpers.js';
 
 import { buildTree } from './layoutHelpers.js';
