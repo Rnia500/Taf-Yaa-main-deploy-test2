@@ -18,13 +18,23 @@ import {
   Bell, Trash2,
   ArrowDownToLine, User, LogOut, Shield, TreePine,
   CloudUpload,
-  BarChart3
+  BarChart3,
+  PieChartIcon,
+  ArrowDownFromLineIcon,
+  AlignVerticalDistributeStartIcon,
+  LayoutDashboardIcon,
+  Users2Icon,
+  UsersRoundIcon,
+  UserSearchIcon,
+  UserCheckIcon,
+  UserIcon
 } from 'lucide-react';
 import Card from '../../layout/containers/Card';
 import '../../styles/Navbar.css';
 import useModalStore from '../../store/useModalStore';
 import { NavLink } from "react-router-dom";
 import LanguageMenu from '../LanguageMenu';
+import { PieChart } from 'recharts';
 
 export default function AdminNavbar() {
   const [submenuOpen, setSubmenuOpen] = useState(false);
@@ -205,7 +215,7 @@ export default function AdminNavbar() {
                 className={({ isActive }) => `action-btn ${isActive ? 'active' : ''}`}
                 title="Admin Dashboard"
               >
-                <BarChart3 size={20} color="var(--color-primary-text)" />
+                <UserIcon size={20} color="var(--color-primary-text)" />
               </NavLink>
 
               <div

@@ -1,15 +1,10 @@
-
-// Used in any component to auto-translate content when language switches
-
+// src/hooks/useAutoTranslate.js (v2 - fixed)
 import { useState, useEffect, useRef } from 'react';
 import { useContentTranslation } from '../context/TranslationContext';
 
 /**
- * Translates a single text string automatically when language changes.
- *
- * Usage:
- *   const translatedBio = useAutoTranslate(biographyText);
- *   const translatedTribe = useAutoTranslate(identity.tribe);
+ * Translate a single text string when language changes
+ * Usage: const translatedBio = useAutoTranslate(biographyText);
  */
 export function useAutoTranslate(text) {
   const { currentLang, translateText, needsTranslation } = useContentTranslation();
@@ -18,41 +13,30 @@ export function useAutoTranslate(text) {
   const prevText = useRef(text);
 
   useEffect(() => {
-    // Only translate if language changed or text changed
-    if (
-      text === prevText.current &&
-      currentLang === prevLang.current
-    ) return;
-
+    // Only re-translate if lang or text changed
+    if (text === prevText.current && currentLang === prevLang.current) return;
     prevText.current = text;
     prevLang.current = currentLang;
 
-    if (!needsTranslation || !text) {
+    if (!needsTranslation || !text?.trim()) {
       setTranslated(text || '');
       return;
     }
 
     let cancelled = false;
-    translateText(text, currentLang).then((result) => {
+    translateText(text).then(result => {
       if (!cancelled) setTranslated(result);
     });
-
     return () => { cancelled = true; };
   }, [text, currentLang, needsTranslation, translateText]);
 
-  return translated;
+  // Return original while translating
+  return translated || text || '';
 }
 
 /**
- * Translates multiple fields automatically when language changes.
- *
- * Usage:
- *   const translated = useAutoTranslateFields({
- *     tribe: identity.tribe,
- *     language: identity.language,
- *     placeOfBirth: identity.placeOfBirth,
- *   });
- *   // then use translated.tribe, translated.language, etc.
+ * Translate multiple fields at once
+ * Usage: const t = useAutoTranslateFields({ bio: '...', tribe: '...' });
  */
 export function useAutoTranslateFields(fields) {
   const { currentLang, translateFields, needsTranslation } = useContentTranslation();
@@ -60,27 +44,24 @@ export function useAutoTranslateFields(fields) {
   const prevLang = useRef(currentLang);
 
   useEffect(() => {
-    if (!fields || Object.keys(fields).length === 0) return;
-
     prevLang.current = currentLang;
 
-    if (!needsTranslation) {
-      setTranslated(fields);
+    if (!needsTranslation || !fields || Object.keys(fields).length === 0) {
+      setTranslated(fields || {});
       return;
     }
 
     let cancelled = false;
-    translateFields(fields, currentLang).then((result) => {
+    translateFields(fields).then(result => {
       if (!cancelled) setTranslated(result);
     });
-
     return () => { cancelled = true; };
   }, [currentLang, needsTranslation]);
 
-  // Always sync original values when fields change
+  // Sync when fields themselves change
   useEffect(() => {
     if (!needsTranslation) setTranslated(fields || {});
-  }, [fields]);
+  }, [fields, needsTranslation]);
 
   return translated;
 }

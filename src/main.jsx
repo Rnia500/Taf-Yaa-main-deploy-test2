@@ -37,6 +37,10 @@ import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { TranslationProvider } from "./context/TranslationContext.jsx";
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ChatPage from './pages/ChatPage';
+import { ThemeProvider } from './context/ThemeContext';
+import FindMyFamily        from './pages/FindMyFamily';
+
 
 // AWS S3 Backup & Recovery page ──────────────────────────────────────
 import BackupPage from "./pages/BackupPage.jsx";
@@ -241,8 +245,25 @@ const router = createBrowserRouter([
   },
 
   { 
+    path: '/family-tree/:treeId/chat', 
+    element: <ChatPage /> 
+  },
+
+  { 
     path: "/family-tree/:treeId/admin",
     element: <AdminDashboard />, 
+    errorElement: <Custom404Page />,
+  },
+
+  {
+    path: "/find-my-family",
+    element: <FindMyFamily />,
+    errorElement: <Custom404Page />,
+  },
+
+  { 
+    path: '/family-tree/:treeId/backup',
+    element: <BackupPage />,
     errorElement: <Custom404Page />,
   },
 
@@ -256,10 +277,12 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
+    <ThemeProvider>
        <TranslationProvider> 
       <RouterProvider router={router} />
       <GlobalModals />
       </TranslationProvider>
+    </ThemeProvider>
     </AuthProvider>
   </StrictMode>
 );

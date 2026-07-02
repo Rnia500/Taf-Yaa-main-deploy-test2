@@ -9,6 +9,7 @@ import Loading from "../components/Loading.jsx";
 import { getLottieData } from "../assets/lotties/lottieMappings.js";
 import FlexContainer from "../layout/containers/FlexContainer";
 import LottieLoader from "../components/LottieLoader";
+import { ChatButton } from '../components/chat/FamilyChat';
 
 export default function FamilyTreePage() {
   const { treeId } = useParams();
@@ -89,6 +90,12 @@ return (
     <div style={{ height: "calc(100vh - var(--topbar-height))", width: "100%" }}>
       <TreeCanvasWrapper treeId={tree.id} lottieData={lottieData} />
     </div>
+    <ChatButton
+      treeId={treeId}
+      treeName={tree?.name || tree?.familyName}
+      members={tree?.members || []}
+      userRole={tree?.userRole || null}
+    />
   </TreeProvider>
 );
 
