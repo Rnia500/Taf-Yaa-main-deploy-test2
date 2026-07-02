@@ -9,7 +9,7 @@ import Loading from "../components/Loading.jsx";
 import { getLottieData } from "../assets/lotties/lottieMappings.js";
 import FlexContainer from "../layout/containers/FlexContainer";
 import LottieLoader from "../components/LottieLoader";
-import { ChatButton, EventsButton } from '../components/chat/FamilyChat';
+import { ChatButton, EventsButton } from '../components/Chat/FamilyChat';
 
 
 export default function FamilyTreePage() {
