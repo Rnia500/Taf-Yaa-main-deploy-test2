@@ -1,10 +1,3 @@
-// src/services/mergeRequestService.js
-// Taf'Yaa — Tree Merge Requests
-// Collection: mergeRequests/{id}
-//   sourceTreeId, sourceTreeName, targetTreeId, targetTreeName,
-//   requestedBy, requestedByName, commonAncestorName, message,
-//   status ('pending' | 'approved' | 'rejected'), createdAt, respondedAt, respondedBy
-
 import {
   collection, addDoc, query, where, orderBy, getDocs,
   doc, updateDoc, serverTimestamp, onSnapshot,

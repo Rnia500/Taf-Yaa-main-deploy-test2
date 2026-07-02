@@ -1,8 +1,3 @@
-// src/pages/MergeRequestsPage.jsx
-// Taf'Yaa — Merge Requests
-// Mirrors PendingRequestsPage's structure/components so it fits the existing
-// Notification Center UI without introducing a new visual language.
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import FlexContainer from '../layout/containers/FlexContainer';

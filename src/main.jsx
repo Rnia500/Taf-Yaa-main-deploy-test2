@@ -1,4 +1,3 @@
-// src/main.jsx
 import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider, useNavigate, useLocation } from "react-router-dom";
