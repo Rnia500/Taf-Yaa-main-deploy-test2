@@ -1,5 +1,3 @@
-// src/services/backupService.js (v3 - supports name + description + type)
-
 const API_URL = import.meta.env.VITE_BACKUP_API_URL || '';
 
 function checkConfig() {

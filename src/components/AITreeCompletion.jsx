@@ -1,7 +1,3 @@
-// src/components/AITreeCompletion.jsx
-// Taf'Yaa — AI Tree Completion Feature
-// Analyses existing tree data and suggests missing relatives
-
 import React, { useState, useMemo } from 'react';
 import { Brain, Sparkles, UserPlus, X, Check, ChevronRight, Lightbulb } from 'lucide-react';
 

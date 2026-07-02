@@ -1,6 +1,3 @@
-// src/pages/AdminDashboard.jsx
-// FIXED: imports from ../config/firebase
-
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   LayoutDashboard, Users, TreePine, Shield, Bell,
@@ -154,7 +151,7 @@ function OverviewPanel({ stats, trees, recentActivity, loading, t, navigate }) {
             {icon:'💬',label:'Family Chat',desc:'Open the chat center',color:'#7c3aed',path:'/family-tree/:treeId/chat'},
             {icon:'🔔',label:'Notifications',desc:'View all notifications',color:'#ea580c',path:'/notifications'},
             {icon:'🔍',label:'Find My Family',desc:'Search diaspora connections',color:'#0891b2',path:'/find-my-family'},
-            {icon:'⚙️',label:'Tree Settings',desc:'Manage tree settings',color:'#d97706',path:'/settings'},
+            {icon:'⚙️',label:'Tree Settings',desc:'Manage tree settings',color:'#d97706',path:'/family-tree/:treeId/settings'},
           ].map((action,i)=>(
             <QuickAction key={i} {...action} onClick={()=>action.path&&navigate(action.path)} t={t} delay={i*.05}/>
           ))}
@@ -477,7 +474,7 @@ export default function AdminDashboard() {
     {label:'Notifications', icon:<Bell size={17}/>,       path:'/notifications'},
     {label:'Find Family',   icon:<Search size={17}/>,     path:'/find-my-family'},
     {label:'Family Chat',   icon:<MessageCircle size={17}/>, path:'/family-tree/:treeId/chat'},
-    {label:'Tree Settings', icon:<Settings size={17}/>,      path:'/settings'},
+    {label:'Tree Settings', icon:<Settings size={17}/>,      path:'/family-tree/:treeId/settings'},
   ];
 
 

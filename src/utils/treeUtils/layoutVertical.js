@@ -232,6 +232,7 @@ function secondPass(node, centerX, centerY, nodesMap) {
 
 /*  Edges  */
 function createEdges(marriages, nodesMap) {
+  resetEdgeSeen(); // Reset dedup set at the start of each layout pass
   const edges = [];
   for (const marriage of marriages) {
     if (marriage.marriageType === 'polygamous') {

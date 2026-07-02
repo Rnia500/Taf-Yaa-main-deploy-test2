@@ -73,7 +73,7 @@ const MyTreesPage = () => {
     const fetchTrees = async () => {
       if (!currentUser) return;
       try {
-        const userTrees = await dataService.getTreesByUserId(currentUser.uid, true); // Include deleted
+        const userTrees = await dataService.getTreesByUserId(currentUser.uid, true); 
 
         // Automatic purging of expired trees (30 days)
         const now = new Date();

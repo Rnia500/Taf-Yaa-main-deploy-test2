@@ -5,13 +5,14 @@ import Text from '../components/Text';
 import Card from '../layout/containers/Card';
 import Column from '../layout/containers/Column';
 import Row from '../layout/containers/Row';
-import { getJoinRequestsForTree } from '../services/joinRequestService';
+import Button from '../components/Button';
+import { getJoinRequestsForTree, reviewJoinRequest } from '../services/joinRequestService';
 import useToastStore from '../store/useToastStore';
 import { useAuth } from '../context/AuthContext';
 import JoinRequestCard from '../components/PendingRequestCard';
 import SelectDropdown from '../components/SelectDropdown';
 import { TextInput } from '../components/Input';
-import { Clock, Search } from 'lucide-react';
+import { Clock, Search, Check, X } from 'lucide-react';
 import { formatArrivalTime } from '../utils/featuresUtils/formatArrivalTime';
 
 const PendingRequestsPage = () => {
@@ -26,6 +27,8 @@ const PendingRequestsPage = () => {
   const [statusFilter, setStatusFilter] = useState('pending');
   const [genderFilter, setGenderFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  // Track which request is currently being approved/rejected, to disable its buttons only
+  const [respondingId, setRespondingId] = useState(null);
 
   useEffect(() => {
     if (currentUser && treeId) {
@@ -70,8 +73,6 @@ const PendingRequestsPage = () => {
     setFilteredRequests(filtered);
   }, [allRequests, statusFilter, genderFilter, searchQuery]);
 
-
-
   const handleView = (request) => {
     // Open the notification details in the sidebar
     onNotificationClick({
@@ -85,6 +86,35 @@ const PendingRequestsPage = () => {
       details: `Join request details: ${request.name}, ${request.gender}, ${request.birthDate || 'No birth date'}, ${request.notes || 'No notes'}. Proof files: ${request.proofFiles.length}`,
       requestData: request // Pass full request data for sidebar
     });
+  };
+
+  // NEW: real Approve / Reject actions, wired to joinRequestService.reviewJoinRequest
+  const handleApprove = async (request) => {
+    setRespondingId(request.JoinRequestId || request.id);
+    try {
+      await reviewJoinRequest(request.JoinRequestId || request.id, 'approved', currentUser.uid);
+      addToast(`${request.name} approved and added to the tree`, 'success');
+      await loadPendingRequests();
+    } catch (error) {
+      console.error('Error approving join request:', error);
+      addToast('Failed to approve request', 'error');
+    } finally {
+      setRespondingId(null);
+    }
+  };
+
+  const handleReject = async (request) => {
+    setRespondingId(request.JoinRequestId || request.id);
+    try {
+      await reviewJoinRequest(request.JoinRequestId || request.id, 'rejected', currentUser.uid);
+      addToast(`${request.name}'s request was rejected`, 'info');
+      await loadPendingRequests();
+    } catch (error) {
+      console.error('Error rejecting join request:', error);
+      addToast('Failed to reject request', 'error');
+    } finally {
+      setRespondingId(null);
+    }
   };
 
   if (loading) {
@@ -169,13 +199,39 @@ const PendingRequestsPage = () => {
           </Card>
         ) : (
           <div className="notification-grid">
-            {filteredRequests.map((request) => (
-              <JoinRequestCard
-                key={request.id}
-                request={request}
-                onClick={handleView}
-              />
-            ))}
+            {filteredRequests.map((request) => {
+              const isPending = request.status === 'pending';
+              const isResponding = respondingId === (request.JoinRequestId || request.id);
+              return (
+                <Column key={request.id} padding="0px" margin="0px" gap="8px">
+                  <JoinRequestCard
+                    request={request}
+                    onClick={handleView}
+                  />
+                  {/* NEW: Approve / Reject actions — only shown for pending requests */}
+                  {isPending && (
+                    <Row gap="8px" fitContent style={{ padding: '0 4px' }}>
+                      <Button
+                        variant="primary"
+                        onClick={() => handleApprove(request)}
+                        disabled={isResponding}
+                        icon={<Check size={14} />}
+                      >
+                        {isResponding ? 'Processing...' : 'Approve'}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => handleReject(request)}
+                        disabled={isResponding}
+                        icon={<X size={14} />}
+                      >
+                        Reject
+                      </Button>
+                    </Row>
+                  )}
+                </Column>
+              );
+            })}
           </div>
         )}
       </Column>

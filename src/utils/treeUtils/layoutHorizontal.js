@@ -13,6 +13,7 @@ import {
   createMonogamousEdge,
   createPolygamousEdge,
   createEdgeWithGuard,
+  resetEdgeSeen,
 } from './edgeHelpers.js';
 
 import { buildTree } from './layoutHelpers.js';
@@ -221,6 +222,7 @@ function secondPass(node, centerX, centerY, nodesMap) {
 
 /*  Phase 4: edges  */
 function createEdges(marriages, nodesMap) {
+  resetEdgeSeen(); // Reset dedup set at the start of each layout pass
   const edges = [];
   for (const marriage of marriages) {
     if (marriage.marriageType === 'polygamous') {

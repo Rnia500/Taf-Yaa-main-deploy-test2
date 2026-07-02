@@ -1,102 +1,114 @@
-// src/services/transcribeService.js
-// Taf'Yaa — Transcribe Service (v3 - dual engine)
-// AWS Transcribe → main languages (EN, FR, AR, ES, DE, PT)
-// OpenAI Whisper → African languages (HA, YO, SW, AM, ZU, IG, SO)
+const TRANSCRIBE_API = import.meta.env.VITE_TRANSCRIBE_API_URL;
 
-const API_URL = import.meta.env.VITE_TRANSCRIBE_API_URL || '';
+export const RECORDING_LANGUAGES = {
+  // AWS Transcribe — automatic voice to text
+  "en-US": { name: "English", flag: "🇺🇸", engine: "aws", category: "auto" },
+  "en-GB": { name: "English (UK)", flag: "🇬🇧", engine: "aws", category: "auto" },
+  "fr-FR": { name: "French / Français", flag: "🇫🇷", engine: "aws", category: "auto" },
+  "ar-SA": { name: "Arabic / عربي", flag: "🇸🇦", engine: "aws", category: "auto" },
+  "ha-NG": { name: "Hausa", flag: "🇳🇬", engine: "aws", category: "african-aws" },
+  "sw-KE": { name: "Swahili / Kiswahili", flag: "🇰🇪", engine: "aws", category: "african-aws" },
+  "yo-NG": { name: "Yoruba", flag: "🇳🇬", engine: "aws", category: "african-aws" },
+  "ig-NG": { name: "Igbo", flag: "🇳🇬", engine: "aws", category: "african-aws" },
+  "pt-BR": { name: "Portuguese", flag: "🇧🇷", engine: "aws", category: "auto" },
+  "es-US": { name: "Spanish", flag: "🇪🇸", engine: "aws", category: "auto" },
+  "de-DE": { name: "German", flag: "🇩🇪", engine: "aws", category: "auto" },
+  "am-ET": { name: "Amharic / አማርኛ", flag: "🇪🇹", engine: "aws", category: "african-aws" },
 
-function checkConfig() {
-  if (!API_URL) throw new Error('VITE_TRANSCRIBE_API_URL not configured.');
-}
+  // Manual transcription — user types after recording
+  "ff":   { name: "Fulfulde", flag: "🌍", engine: "manual", category: "african-manual", region: "Cameroon/Niger/Nigeria" },
+  "bas":  { name: "Bassa", flag: "🇨🇲", engine: "manual", category: "african-manual", region: "Cameroon" },
+  "ewo":  { name: "Ewondo", flag: "🇨🇲", engine: "manual", category: "african-manual", region: "Cameroon" },
+  "baf":  { name: "Bafia", flag: "🇨🇲", engine: "manual", category: "african-manual", region: "Cameroon" },
+  "ybb":  { name: "Yemba (Bamileke)", flag: "🇨🇲", engine: "manual", category: "african-manual", region: "Cameroon" },
+  "bum":  { name: "Bulu", flag: "🇨🇲", engine: "manual", category: "african-manual", region: "Cameroon" },
+  "bm":   { name: "Bambara", flag: "🇲🇱", engine: "manual", category: "african-manual", region: "Mali/Guinea" },
+  "ln":   { name: "Lingala", flag: "🇨🇩", engine: "manual", category: "african-manual", region: "DR Congo/Congo" },
+  "wo":   { name: "Wolof", flag: "🇸🇳", engine: "manual", category: "african-manual", region: "Senegal/Gambia" },
+  "tw":   { name: "Twi / Akan", flag: "🇬🇭", engine: "manual", category: "african-manual", region: "Ghana" },
+  "rw":   { name: "Kinyarwanda", flag: "🇷🇼", engine: "manual", category: "african-manual", region: "Rwanda" },
+  "sn":   { name: "Shona", flag: "🇿🇼", engine: "manual", category: "african-manual", region: "Zimbabwe" },
+  "so":   { name: "Somali / Soomaali", flag: "🇸🇴", engine: "manual", category: "african-manual", region: "Somalia" },
+  "zu":   { name: "Zulu / isiZulu", flag: "🇿🇦", engine: "manual", category: "african-manual", region: "South Africa" },
+  "xh":   { name: "Xhosa / isiXhosa", flag: "🇿🇦", engine: "manual", category: "african-manual", region: "South Africa" },
+};
 
-async function apiFetch(url, options = {}) {
-  const res = await fetch(url, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', ...options.headers },
-  });
-  const text = await res.text();
-  if (!text) throw new Error('No response from server.');
-  let data;
-  try { data = JSON.parse(text); }
-  catch { throw new Error(`Invalid response: ${text.slice(0, 100)}`); }
-  if (!res.ok) throw new Error(data.error || data.message || 'Request failed');
-  return data;
-}
+// Group languages by category for UI display
+export const LANGUAGE_GROUPS = {
+  "auto": {
+    label: "✅ Auto-transcribed languages ",
+    desc: "Voice is automatically converted to text",
+    languages: Object.entries(RECORDING_LANGUAGES)
+      .filter(([,v]) => v.category === "auto")
+      .map(([code, val]) => ({ code, ...val })),
+  },
+  "african-aws": {
+    label: "✅ African languages (Auto)",
+    desc: "Supported byTranscribe for automatic voice-to-text",
+    languages: Object.entries(RECORDING_LANGUAGES)
+      .filter(([,v]) => v.category === "african-aws")
+      .map(([code, val]) => ({ code, ...val })),
+  },
+  "african-manual": {
+    label: "📝 African languages (Type after recording)",
+    desc: "Record your voice, then type what you said — the text will be saved",
+    languages: Object.entries(RECORDING_LANGUAGES)
+      .filter(([,v]) => v.category === "african-manual")
+      .map(([code, val]) => ({ code, ...val })),
+  },
+};
 
 // Convert audio blob to base64
 async function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onload = () => resolve(reader.result.split(",")[1]);
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
 }
 
-// AWS Transcribe languages
-const AWS_LANGUAGES = new Set(['en', 'fr', 'ar', 'es', 'de', 'pt']);
+// Main transcription function
+export async function transcribeAudio(audioBlob, languageCode) {
+  if (!TRANSCRIBE_API) throw new Error("VITE_TRANSCRIBE_API_URL not set in environment");
 
-// OpenAI Whisper languages (African + others)
-const WHISPER_LANGUAGES = new Set(['ha', 'yo', 'sw', 'am', 'zu', 'ig', 'so']);
+  const lang = RECORDING_LANGUAGES[languageCode];
+  if (!lang) throw new Error(`Language "${languageCode}" not found`);
 
-export const transcribeService = {
+  // Manual languages — skip API, return empty transcript
+  if (lang.engine === "manual") {
+    return {
+      transcript: "",
+      languageCode,
+      languageName: lang.name,
+      requiresManualTranscription: true,
+      message: `${lang.name} does not support automatic transcription. Please type your story in the text field below.`,
+    };
+  }
 
-  // Main process function — picks engine automatically based on language
-  async processAudio({ audioBlob, userId, treeId, personId, language = 'en', engine, onProgress }) {
-    checkConfig();
+  // Convert audio to base64
+  const audioBase64 = await blobToBase64(audioBlob);
 
-    // Determine which engine to use
-    const useEngine = engine ||
-      (AWS_LANGUAGES.has(language) ? 'aws' :
-       WHISPER_LANGUAGES.has(language) ? 'whisper' : 'aws');
+  const response = await fetch(TRANSCRIBE_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ audio: audioBase64, languageCode }),
+  });
 
-    // Convert audio to base64
-    onProgress?.('Preparing audio…', 15);
-    const audioBase64 = await blobToBase64(audioBlob);
-    const fileType = audioBlob.type || 'audio/webm';
-    const ext = fileType.includes('mp3') ? 'mp3' :
-                fileType.includes('wav') ? 'wav' : 'webm';
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || `Transcription failed (${response.status})`);
+  }
 
-    onProgress?.(`Uploading and transcribing with ${useEngine === 'whisper' ? 'OpenAI Whisper' : 'AWS Transcribe'}…`, 40);
+  const data = await response.json();
+  if (!data.success) throw new Error(data.error || "Transcription failed");
 
-    const result = await apiFetch(`${API_URL}?action=process`, {
-      method: 'POST',
-      body: JSON.stringify({
-        audioBase64,
-        fileType,
-        fileName: `recording.${ext}`,
-        userId,
-        treeId,
-        personId,
-        language,
-        engine: useEngine,
-      }),
-    });
+  return {
+    transcript: data.transcript,
+    languageCode,
+    languageName: lang.name,
+    requiresManualTranscription: false,
+  };
+}
 
-    onProgress?.('Done!', 100);
-    return result;
-  },
-
-  // All supported languages
-  languages: [
-    // AWS Transcribe
-    { code: 'en', name: 'English',    flag: '🇬🇧', engine: 'aws'     },
-    { code: 'fr', name: 'French',     flag: '🇫🇷', engine: 'aws'     },
-    { code: 'ar', name: 'Arabic',     flag: '🇸🇦', engine: 'aws'     },
-    { code: 'es', name: 'Spanish',    flag: '🇪🇸', engine: 'aws'     },
-    { code: 'de', name: 'German',     flag: '🇩🇪', engine: 'aws'     },
-    { code: 'pt', name: 'Portuguese', flag: '🇧🇷', engine: 'aws'     },
-    // OpenAI Whisper (African)
-    { code: 'ha', name: 'Hausa',      flag: '🌍', engine: 'whisper'  },
-    { code: 'yo', name: 'Yoruba',     flag: '🌍', engine: 'whisper'  },
-    { code: 'sw', name: 'Swahili',    flag: '🌍', engine: 'whisper'  },
-    { code: 'am', name: 'Amharic',    flag: '🌍', engine: 'whisper'  },
-    { code: 'zu', name: 'Zulu',       flag: '🌍', engine: 'whisper'  },
-    { code: 'ig', name: 'Igbo',       flag: '🌍', engine: 'whisper'  },
-    { code: 'so', name: 'Somali',     flag: '🌍', engine: 'whisper'  },
-    // Manual fallback
-    { code: 'ff', name: 'Fulfulde',   flag: '🌍', engine: 'manual'  },
-    { code: 'bm', name: 'Bambara',    flag: '🌍', engine: 'manual'  },
-    { code: 'ln', name: 'Lingala',    flag: '🌍', engine: 'manual'  },
-  ],
-};
+export default { transcribeAudio, RECORDING_LANGUAGES, LANGUAGE_GROUPS };

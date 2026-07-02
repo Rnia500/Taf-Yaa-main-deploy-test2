@@ -34,11 +34,11 @@ export function createMonogamousEdge(source, target, marriageId, options = {}) {
 }
 
 export function createPolygamousEdge(source, target, marriageId, options = {}) {
-  // Use full marriageId for uniqueness
+  // Strip "marriage-" prefix so IDs are stable regardless of how marriageId is passed in
   const cleanMarriageId = String(marriageId || "").replace(/^marriage-/, "") || "unknown";
 
 return {
-  id: `edge-polygamous-${source}-${target}-marriage-${marriageId}`,
+  id: `edge-polygamous-${source}-${target}-marriage-${cleanMarriageId}`,
   source,
   target,
   type: "polygamousEdge",
@@ -68,16 +68,23 @@ export function createSpouseEdge(source, target, options = {}) {
 }
 
 // Helper function to safely create edges with node existence checks
+// Module-level seen-IDs set — reset per layout call via resetEdgeSeen()
+const _seenEdgeIds = new Set();
+export function resetEdgeSeen() { _seenEdgeIds.clear(); }
+
 export function createEdgeWithGuard(edgeCreator, nodesMap, ...args) {
   const edge = edgeCreator(...args);
 
   // Check if both source and target nodes exist
   if (!nodesMap.has(edge.source) || !nodesMap.has(edge.target)) {
-    console.warn(
-      `Skipping edge creation: source "${edge.source}" or target "${edge.target}" not found in nodesMap`
-    );
     return null;
   }
+
+  // Deduplicate: skip if same edge ID already emitted this layout pass
+  if (_seenEdgeIds.has(edge.id)) {
+    return null;
+  }
+  _seenEdgeIds.add(edge.id);
 
   return edge;
 }

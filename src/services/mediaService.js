@@ -4,9 +4,6 @@ import { storyServiceFirebase } from './data/storyServiceFirebase.js';
 import { createMedia } from '../models/treeModels/MediaModel';
 import { createStory } from '../models/treeModels/StoryModel';
 
-// Set these in your .env (Vite): VITE_CLOUDINARY_UPLOAD_PRESET
-// VITE_CLOUDINARY_CLOUD_NAME already exists in your .env.
-// The preset must be created in Cloudinary as "Unsigned" (Settings > Upload > Upload presets)
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
@@ -32,8 +29,6 @@ export const mediaService = {
     return data;
   },
 
-  // Uploads an image and saves it as a Media document via the existing
-  // mediaServiceFirebase + createMedia model — same path getMediaByTreeId /
   // getMediaByPersonId / getMediaByRole already query against.
   async uploadMedia(file, treeId, personId, userId, options = {}) {
     try {
@@ -42,7 +37,6 @@ export const mediaService = {
       }
 
       // A few callers (addSpouse, addParent, addChild, EditPersonController) pass
-      // a bare string like "profile" instead of an options object — normalize that.
       const opts = typeof options === 'string' ? { role: options } : options;
 
       const uploadResult = await this.uploadFileToCloudinary(file, `trees/${treeId}/media`);
@@ -75,9 +69,7 @@ export const mediaService = {
     }
   },
 
-  // Uploads a raw file and returns its URL + metadata only — no Firestore write.
   // Callers (PhotoUploadModal, AddAttachmentModal, MediaAttachment, AudioUploadCard)
-  // attach the result to whatever record they're already updating themselves.
   async uploadAttachment(file, treeId, personId, userId, _options = {}) {
     try {
       const validTypes = ['image/', 'audio/', 'video/', 'application/pdf'];

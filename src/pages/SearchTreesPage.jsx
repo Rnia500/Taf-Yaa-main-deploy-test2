@@ -27,8 +27,10 @@ const SearchTreesPage = () => {
       try {
         setLoading(true);
         const allTrees = await dataService.getAllTrees();
-        // Filter only public trees
-        const publicTrees = allTrees.filter(tree => tree.isPublic === true);
+        // Filter only public trees that are not deleted
+        const publicTrees = allTrees.filter(tree =>
+          !tree.deletedAt && tree.settings?.privacy?.isPublic === true
+        );
         setTrees(publicTrees);
         setFilteredTrees(publicTrees);
       } catch (error) {
@@ -56,8 +58,9 @@ const SearchTreesPage = () => {
 
     const filtered = trees.filter(tree =>
       tree.familyName.toLowerCase().includes(term.toLowerCase()) ||
-      (tree.description && tree.description.toLowerCase().includes(term.toLowerCase())) ||
-      (tree.tribe && tree.tribe.toLowerCase().includes(term.toLowerCase()))
+      (tree.familyDescription && tree.familyDescription.toLowerCase().includes(term.toLowerCase())) ||
+      (tree.orgineTribe && tree.orgineTribe.toLowerCase().includes(term.toLowerCase())) ||
+      (tree.origineHomeLand && tree.origineHomeLand.toLowerCase().includes(term.toLowerCase()))
     );
     setFilteredTrees(filtered);
   };

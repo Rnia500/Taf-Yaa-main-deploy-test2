@@ -16,6 +16,7 @@ import FamilyTreePage from "./pages/FamilyTreePage.jsx";
 import NotificationOverviewPage from "./pages/NotificationOverviewPage.jsx";
 import PendingRequestsPage from "./pages/PendingRequestsPage.jsx";
 import FamilyActivityPage from "./pages/FamilyActivityPage.jsx";
+import MergeRequestsPage from "./pages/MergeRequestsPage.jsx";
 import MyTreesPage from "./pages/MyTreesPage.jsx";
 import MyStoriesPage from "./pages/MyStoriesPage.jsx";
 import MembersPage from "./pages/MembersPage.jsx";
@@ -40,6 +41,9 @@ import AdminDashboard from './pages/AdminDashboard';
 import ChatPage from './pages/ChatPage';
 import { ThemeProvider } from './context/ThemeContext';
 import FindMyFamily        from './pages/FindMyFamily';
+import SettingsPage from './pages/SettingsPage';
+import DiscoverPage from "./pages/DiscoverPage.jsx";
+import FamilyEventsPage from "./pages/FamilyEventsPage.jsx";
 
 
 // AWS S3 Backup & Recovery page ──────────────────────────────────────
@@ -137,7 +141,7 @@ const router = createBrowserRouter([
           },
           {
             path: "merge",
-            element: <div>Merge Requests Content</div>,
+            element: <MergeRequestsPage />,
           },
           {
             path: "requests",
@@ -169,6 +173,18 @@ const router = createBrowserRouter([
   {
     path: "/settings",
     element: <App />,
+    errorElement: <Custom404Page />,
+  },
+
+  {
+    path: "/family-tree/:treeId/SettingsPage",
+    element: <SettingsPage />,
+    errorElement: <Custom404Page />,
+  },
+
+  {
+    path: "/family-tree/:treeId/family-events",
+    element: <FamilyEventsPage />,
     errorElement: <Custom404Page />,
   },
   {
@@ -252,6 +268,12 @@ const router = createBrowserRouter([
   { 
     path: "/family-tree/:treeId/admin",
     element: <AdminDashboard />, 
+    errorElement: <Custom404Page />,
+  },
+
+  {
+    path: "/discover",
+    element: <DiscoverPage />,
     errorElement: <Custom404Page />,
   },
 

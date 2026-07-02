@@ -1,6 +1,3 @@
-// src/components/CollaborationIndicator.jsx
-// Taf'Yaa — Shows who is viewing the tree right now (like Google Docs)
-
 import React from 'react';
 import { useOnlinePresence } from '../hooks/useRealtimeTree';
 import { useAuth } from '../context/AuthContext';

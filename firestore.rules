@@ -167,27 +167,21 @@ service cloud.firestore {
     // ---------- JOIN REQUESTS ---------- //
 
     match /joinRequests/{joinRequestId} {
-
-
       allow create: if isSignedIn();
-
 
       allow read: if isSignedIn() && (
         request.auth.uid == resource.data.submittedBy ||
         isTreeAdminOrModerator(resource.data.treeId)
       );
 
-
       allow list: if isSignedIn()
         && request.query.where.size() == 1
         && request.query.where[0][0] == 'treeId'
         && isTreeAdminOrModerator(request.query.where[0][2]);
 
-
       allow update, delete: if isSignedIn()
         && isTreeAdminOrModerator(resource.data.treeId);
     }
-
 
     // ---------- ACTIVITIES ---------- //
 
@@ -197,12 +191,95 @@ service cloud.firestore {
 
       allow create: if isSignedIn();
 
-      allow update, delete: if false; // Activities are immutable once created
+      allow update, delete: if false;
 
       allow list: if isSignedIn()
         && request.query.where.size() == 1
         && request.query.where[0][0] == 'treeId'
         && isTreeAdminOrModerator(request.query.where[0][2]);
+    }
+
+    // ---------- GROUP CHAT ---------- //
+    // chats/{treeId}                  → conversation metadata
+    // chats/{treeId}/messages/{msgId} → individual messages
+
+    match /chats/{treeId} {
+      allow read, write: if isSignedIn() && isTreeMember(treeId);
+
+      match /messages/{messageId} {
+        allow read:   if isSignedIn() && isTreeMember(treeId);
+        allow create: if isSignedIn()
+          && isTreeMember(treeId)
+          && request.resource.data.senderId == request.auth.uid;
+        allow update: if isSignedIn() && isTreeMember(treeId);
+        allow delete: if isSignedIn() && (
+          request.auth.uid == resource.data.senderId ||
+          isTreeAdminOrModerator(treeId)
+        );
+      }
+    }
+
+    // ---------- DIRECT MESSAGES ---------- //
+    // directMessages/{dmId}                   → conversation metadata
+    // directMessages/{dmId}/messages/{msgId}  → individual messages
+    // dmId = uid1_uid2 (sorted alphabetically)
+
+    match /directMessages/{dmId} {
+      allow read:   if isSignedIn()
+        && request.auth.uid in resource.data.participants;
+      allow create: if isSignedIn()
+        && request.auth.uid in request.resource.data.participants;
+      allow update: if isSignedIn()
+        && request.auth.uid in resource.data.participants;
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn()
+          && request.auth.uid in
+             get(/databases/$(database)/documents/directMessages/$(dmId)).data.participants;
+        allow create: if isSignedIn()
+          && request.resource.data.senderId == request.auth.uid
+          && exists(/databases/$(database)/documents/directMessages/$(dmId));
+        allow update: if isSignedIn()
+          && request.auth.uid in
+             get(/databases/$(database)/documents/directMessages/$(dmId)).data.participants;
+        allow delete: if isSignedIn()
+          && resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    // ---------- TYPING STATUS ---------- //
+
+    match /typingStatus/{convId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // ---------- ROLE REQUESTS ---------- //
+
+    match /roleRequests/{requestId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.userId ||
+        isTreeAdminOrModerator(resource.data.treeId)
+      );
+      allow update: if isSignedIn()
+        && isTreeAdminOrModerator(resource.data.treeId);
+      allow delete: if false;
+    }
+
+    // ---------- MERGE REQUEST ---------- //
+
+    match /mergeRequests/{requestId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.requestedBy ||
+        isTreeAdminOrModerator(resource.data.targetTreeId)
+      );
+      allow create: if isSignedIn()
+        && request.resource.data.requestedBy == request.auth.uid;
+      allow update: if isSignedIn()
+        && isTreeAdminOrModerator(resource.data.targetTreeId);
+      allow delete: if false;
     }
 
   }

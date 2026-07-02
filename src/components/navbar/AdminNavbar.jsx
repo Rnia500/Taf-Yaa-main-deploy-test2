@@ -109,7 +109,7 @@ export default function AdminNavbar() {
       label: t('navbar.profile'),
       icon: User,
       href: '/profile',
-      action: () => navigate('/profile'), // <-- Ensure this navigates to UserProfile
+      action: () => navigate('/profile'), 
     },
     {
       label: 'My Trees',

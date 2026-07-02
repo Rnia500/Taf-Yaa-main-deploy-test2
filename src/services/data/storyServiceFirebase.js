@@ -1,5 +1,3 @@
-// src/services/data/storyServiceFirebase.js
-
 import {
   collection,
   doc,
@@ -105,6 +103,29 @@ async function getStory(storyId) {
     }
   } catch (error) {
     throw new Error(`Failed to get story: ${error.message}`);
+  }
+}
+
+async function getStoriesByTreeId(treeId) {
+  try {
+    if (!treeId) throw new Error('treeId is required to fetch stories by tree ID');
+
+    const storiesRef = collection(db, 'stories');
+    const q = query(
+      storiesRef,
+      where('treeId', '==', treeId),
+      where('active', '==', true)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const stories = [];
+    querySnapshot.forEach((doc) => {
+      stories.push({ id: doc.id, ...doc.data() });
+    });
+
+    return stories;
+  } catch (error) {
+    throw new Error(`Failed to get stories by tree ID: ${error.message}`);
   }
 }
 

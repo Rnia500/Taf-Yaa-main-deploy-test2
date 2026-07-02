@@ -1,7 +1,3 @@
-// src/hooks/useRealtimeTree.js
-// Taf'Yaa — Real-time Firestore Collaboration Hook
-// Drop this into any component to get live family tree updates
-
 import { useState, useEffect, useCallback } from 'react';
 import {
   collection, doc, onSnapshot, query,
@@ -106,7 +102,8 @@ export function useOnlinePresence(treeId, userId, userName) {
     updateDoc(presenceRef, {
       userId, userName, lastSeen: serverTimestamp(), online: true,
     }).catch(() => {
-      // Doc doesn't exist yet, create it
+
+      // If the doc doesn't exist yet, create it
       import('firebase/firestore').then(({ setDoc }) => {
         setDoc(presenceRef, { userId, userName, lastSeen: serverTimestamp(), online: true });
       });

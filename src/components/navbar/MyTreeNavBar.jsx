@@ -17,7 +17,8 @@ import {
   LogOut,
   BookOpen,
   Compass,
-  TreePine
+  TreePine,
+  Bell,
 } from 'lucide-react';
 import Card from '../../layout/containers/Card';
 import '../../styles/Navbar.css';
@@ -84,6 +85,7 @@ export default function MyTreeNavBar() {
       href: '/settings',
       action: () => {
         closeSubmenu();
+        navigate('/family-tree/:treeId/SettingsPage');
       }
     },
     {

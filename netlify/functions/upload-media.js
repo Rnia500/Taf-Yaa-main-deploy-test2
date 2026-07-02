@@ -13,7 +13,7 @@ exports.handler = async (event) => {
 
   try {
     const timestamp = Math.round(new Date().getTime() / 1000);
-    const folder = "tafyaa"; // change this if you want dynamic folders later
+    const folder = "tafyaa"; 
 
     // Generate secure signature
     const signature = cloudinary.utils.api_sign_request(
