@@ -22,7 +22,8 @@ import {
   PieChartIcon,
   ArrowDownFromLineIcon,
   AlignVerticalDistributeStartIcon,
-  LayoutDashboardIcon
+  LayoutDashboardIcon,
+  User2Icon
 } from 'lucide-react';
 import Card from '../../layout/containers/Card';
 import '../../styles/Navbar.css';
@@ -97,7 +98,7 @@ export default function AdminNavbar() {
       console.error('Logout failed:', error);
     }
   };
-
+ 
   // Submenu items with proper functionality
   const submenuItems = [
     {
@@ -133,11 +134,6 @@ export default function AdminNavbar() {
     { label: t('navbar.tree_view'), href: `/family-tree/${currentTreeId}` },
     { label: t('navbar.members'), href: `/family-tree/${currentTreeId}/members` },
     { label: t('navbar.deleted_persons'), href: `/family-tree/${currentTreeId}/deleted-persons` },
-    { label: 'Family Chat', href: `/family-tree/${currentTreeId}/chat` },
-    { label: 'Family Events', href: `/family-tree/${currentTreeId}/events` },
-    { label: 'Discover', href: `/discover` },
-    { label: 'Backup & Recovery', href: `/family-tree/${currentTreeId}/backup` },
-    { label: 'Analytics', href: `/family-tree/${currentTreeId}/analytics` },
     { label: 'Admin Dashboard', href: `/family-tree/${currentTreeId}/admin` },
     { label: t('navbar.invites'), href: `/family-tree/${currentTreeId}/invites` },
     { label: t('navbar.notification_center'), href: `/family-tree/${currentTreeId}/notificationcenter` },
@@ -218,7 +214,7 @@ export default function AdminNavbar() {
                 className={({ isActive }) => `action-btn ${isActive ? 'active' : ''}`}
                 title="Admin Dashboard"
               >
-                <LayoutDashboardIcon size={20} color="var(--color-primary-text)" />
+                <User2Icon size={20} color="var(--color-primary-text)" />
               </NavLink>
 
               <div
