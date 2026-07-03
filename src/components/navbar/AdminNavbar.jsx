@@ -138,6 +138,7 @@ export default function AdminNavbar() {
     { label: 'Discover', href: `/discover` },
     { label: 'Backup & Recovery', href: `/family-tree/${currentTreeId}/backup` },
     { label: 'Analytics', href: `/family-tree/${currentTreeId}/analytics` },
+    { label: 'Admin Dashboard', href: `/family-tree/${currentTreeId}/admin` },
     { label: t('navbar.invites'), href: `/family-tree/${currentTreeId}/invites` },
     { label: t('navbar.notification_center'), href: `/family-tree/${currentTreeId}/notificationcenter` },
   ];
