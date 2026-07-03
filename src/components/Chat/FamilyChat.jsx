@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, X, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +7,6 @@ import { useAuth } from '../../context/AuthContext';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 
-// ─── Floating Chat Button (updated) ──────────────────────────────────────────
 export const ChatButton = ({ treeId, treeName, members = [], userRole }) => {
   const navigate  = useNavigate();
   const [unread, setUnread] = useState(0);
@@ -26,11 +26,11 @@ export const ChatButton = ({ treeId, treeName, members = [], userRole }) => {
       const lastMsgAt = data.lastMessageAt?.toDate?.()?.getTime?.() ?? 0;
       const lastBy    = data.lastMessageBy ?? '';
 
-      
+      // Don't show badge for messages we sent ourselves
       if (lastBy === (currentUser.displayName || currentUser.email)) {
         setUnread(0);
       } else if (lastMsgAt > lastSeen) {
-        setUnread(1); 
+        setUnread(1); // simplified: just show dot, not exact count
       } else {
         setUnread(0);
       }
@@ -46,7 +46,7 @@ export const ChatButton = ({ treeId, treeName, members = [], userRole }) => {
       localStorage.setItem(storageKey, Date.now().toString());
       setUnread(0);
     }
-    // Navigate to the ChatPage
+    // Navigate to the full ChatPage
     navigate(`/family-tree/${treeId}/chat`);
   };
 
@@ -56,7 +56,7 @@ export const ChatButton = ({ treeId, treeName, members = [], userRole }) => {
         @keyframes fc-fadein { from{opacity:0;transform:scale(.7)} to{opacity:1;transform:scale(1)} }
         @keyframes fc-pulse  { 0%,100%{box-shadow:0 4px 20px rgba(22,163,74,.4)} 50%{box-shadow:0 4px 28px rgba(22,163,74,.7)} }
         .fc-float-btn {
-          position:fixed; bottom:24px; right:24px;
+          position:fixed; bottom:24px; left:24px;
           width:56px; height:56px; border-radius:50%;
           background:linear-gradient(135deg,#14532d,#16a34a);
           border:none; cursor:pointer;
@@ -67,7 +67,7 @@ export const ChatButton = ({ treeId, treeName, members = [], userRole }) => {
         }
         .fc-float-btn:hover { transform:scale(1.1) !important; }
         .fc-tooltip {
-          position:absolute; bottom:64px; right:0;
+          position:absolute; bottom:64px; left:0;
           background:#111827; color:#fff; font-size:12px; font-weight:600;
           padding:5px 10px; border-radius:8px; white-space:nowrap;
           opacity:0; pointer-events:none; transition:opacity .2s;
@@ -104,7 +104,6 @@ export const ChatButton = ({ treeId, treeName, members = [], userRole }) => {
 };
 
 
-// ─── Events Button ───────────────────────────────────────────────────────────
 export const EventsButton = ({ treeId }) => {
   const navigate = useNavigate();
 
@@ -113,7 +112,7 @@ export const EventsButton = ({ treeId }) => {
       <style>{`
         @keyframes evb-fadein { from{opacity:0;transform:scale(.7)} to{opacity:1;transform:scale(1)} }
         .evb-float-btn {
-          position:fixed; bottom:92px; right:24px;
+          position:fixed; bottom:92px; left:24px;
           width:48px; height:48px; border-radius:50%;
           background:linear-gradient(135deg,#92400e,#C9731E);
           border:none; cursor:pointer;
@@ -124,7 +123,7 @@ export const EventsButton = ({ treeId }) => {
         }
         .evb-float-btn:hover { transform:scale(1.1); }
         .evb-tooltip {
-          position:absolute; bottom:54px; right:0;
+          position:absolute; bottom:54px; left:0;
           background:#111827; color:#fff; font-size:11px; font-weight:600;
           padding:4px 9px; border-radius:7px; white-space:nowrap;
           opacity:0; pointer-events:none; transition:opacity .2s;
@@ -143,5 +142,6 @@ export const EventsButton = ({ treeId }) => {
     </>
   );
 };
+
 
 export default ChatButton;
