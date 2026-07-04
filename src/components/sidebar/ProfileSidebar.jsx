@@ -23,7 +23,7 @@ import LottieLoader from '../LottieLoader';
 import { getPrivacyLabel, getCountryLabel } from '../../models/treeModels/PersonModel';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-
+import AITreeCompletion from '../AITreeCompletion';
 
 import PhotoUploadModal from './PhotoUploadModal';
 
@@ -378,6 +378,14 @@ export default function ProfileSidebar() {
         onClose={closeSidebar}
         onDownload={handleDownload}
       />
+
+      <AITreeCompletion
+  treeId={treeId}
+  onPersonClick={(personId, type) => {
+    // navigate to that person or open their profile
+    setSelectedPerson(personId);
+  }}
+/>
 
       
       <IdentityOverview identity={identityData} />
