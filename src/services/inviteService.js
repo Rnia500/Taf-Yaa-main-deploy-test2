@@ -87,7 +87,7 @@ export async function createInviteService({
 
 export async function validateInviteCode(code) {
   try {
-    const response = await fetch('/.netlify/functions/validate-invite', {
+    const response = await fetch('/aws/validate-invite', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ export async function getInvitesForTree(treeId) {
       throw new Error('User not authenticated');
     }
 
-    const response = await fetch('/.netlify/functions/manage-invites', {
+    const response = await fetch('/aws/manage-invites', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
