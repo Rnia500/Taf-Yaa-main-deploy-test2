@@ -120,7 +120,7 @@ export async function translateFields(fieldsObj, targetLang, sourceLang = "auto"
   const data = await response.json();
   if (!data.success) throw new Error(data.error || "Batch translation failed");
 
-  return data.results; // { fieldName: { translated, coverage } }
+  return data.results; 
 }
 
 // Get display info for a language code
