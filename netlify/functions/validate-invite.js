@@ -1,125 +1,113 @@
-const admin = require('firebase-admin');
+import admin from "firebase-admin";
 
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
+// ── Firebase Admin init (only runs once per warm Lambda container) ─────────
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey,
+      // Replace escaped newlines — env vars can't hold real line breaks
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
     }),
   });
 }
-
 const db = admin.firestore();
 
-exports.handler = async (event, context) => {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json",
+};
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers };
-  }
+export const handler = async (event) => {
+  // FIX: HTTP API sends method here, not event.httpMethod
+  const httpMethod = event.requestContext?.http?.method || event.httpMethod;
 
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+  if (httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: CORS_HEADERS, body: "" };
   }
 
   try {
-    const { code } = JSON.parse(event.body || '{}');
+    const body = JSON.parse(event.body || "{}");
+    const { code } = body;
 
     if (!code) {
       return {
         statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Invite code is required' }),
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: "Invite code is required" }),
       };
     }
 
-    // Query for the invite
-    const invitesRef = db.collection('invites');
-    const querySnapshot = await invitesRef.where('code', '==', code).limit(1).get();
+    // Find the invite by code
+    const invitesSnap = await db
+      .collection("invites")
+      .where("code", "==", code)
+      .limit(1)
+      .get();
 
-    if (querySnapshot.empty) {
+    if (invitesSnap.empty) {
       return {
         statusCode: 404,
-        headers,
-        body: JSON.stringify({ error: 'Invite not found' }),
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: "Invalid invite code" }),
       };
     }
 
-    const inviteDoc = querySnapshot.docs[0];
-    const invite = inviteDoc.data();
+    const inviteDoc = invitesSnap.docs[0];
+    const invite = { id: inviteDoc.id, ...inviteDoc.data() };
 
-    // Check status and expiration
-    if (invite.status !== 'active') {
+    // Check status
+    if (invite.status === "revoked") {
       return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Invite is not active' }),
+        statusCode: 410,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: "This invite has been revoked" }),
       };
     }
 
-    if (invite.expiresAt && new Date(invite.expiresAt.toDate ? invite.expiresAt.toDate() : invite.expiresAt) < new Date()) {
+    // Check expiry
+    if (invite.expiresAt && new Date(invite.expiresAt) < new Date()) {
       return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Invite has expired' }),
+        statusCode: 410,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: "This invite has expired" }),
       };
     }
 
-    if (invite.usesCount >= invite.usesAllowed) {
+    // Check usage limit
+    const usedCount = invite.usedCount || 0;
+    if (invite.usesAllowed && usedCount >= invite.usesAllowed) {
       return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Invite usage limit reached' }),
+        statusCode: 410,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: "This invite has already been used" }),
       };
     }
 
-    // Get tree information
-    const treeDoc = await db.collection('trees').doc(invite.treeId).get();
+    // Fetch the associated tree
+    const treeDoc = await db.collection("trees").doc(invite.treeId).get();
     if (!treeDoc.exists) {
       return {
         statusCode: 404,
-        headers,
-        body: JSON.stringify({ error: 'Tree not found' }),
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: "The family tree for this invite no longer exists" }),
       };
     }
-
-    const tree = treeDoc.data();
+    const tree = { id: treeDoc.id, ...treeDoc.data() };
 
     return {
       statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        invite: {
-          id: inviteDoc.id,
-          ...invite,
-          expiresAt: invite.expiresAt?.toDate ? invite.expiresAt.toDate().toISOString() : invite.expiresAt,
-        },
-        tree: {
-          id: treeDoc.id,
-          familyName: tree.familyName,
-          familyDescription: tree.familyDescription,
-          createdBy: tree.createdBy,
-        },
-      }),
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ invite, tree }),
     };
-  } catch (error) {
-    console.error('Validate invite error:', error);
+  } catch (err) {
+    console.error("validate-invite error:", err);
     return {
       statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: 'Internal server error' }),
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };
