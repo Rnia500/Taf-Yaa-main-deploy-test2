@@ -12,6 +12,10 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 
+// ── AWS endpoints (same pattern as VITE_TRANSCRIBE_API_URL / VITE_TRANSLATE_API_URL) ──
+const VALIDATE_INVITE_API = import.meta.env.VITE_VALIDATE_INVITE_API_URL;
+const MANAGE_INVITES_API = import.meta.env.VITE_MANAGE_INVITES_API_URL;
+
 // Helper to generate a random code of 8-12 characters
 function generateInviteCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -85,9 +89,14 @@ export async function createInviteService({
   return { id: invite.InviteId, ...invite };
 }
 
+// ── CHANGED: now calls AWS Lambda instead of Netlify ──────────────────────
 export async function validateInviteCode(code) {
+  if (!VALIDATE_INVITE_API) {
+    throw new Error('VITE_VALIDATE_INVITE_API_URL not set in environment');
+  }
+
   try {
-    const response = await fetch('/aws/validate-invite', {
+    const response = await fetch(VALIDATE_INVITE_API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -111,17 +120,20 @@ export async function validateInviteCode(code) {
   }
 }
 
-
-
-// Get invites for a tree (for admin management) - now uses server function
+// ── CHANGED: now calls AWS Lambda instead of Netlify ──────────────────────
+// Get invites for a tree (for admin management)
 export async function getInvitesForTree(treeId) {
+  if (!MANAGE_INVITES_API) {
+    throw new Error('VITE_MANAGE_INVITES_API_URL not set in environment');
+  }
+
   try {
     const idToken = await auth.currentUser?.getIdToken();
     if (!idToken) {
       throw new Error('User not authenticated');
     }
 
-    const response = await fetch('/aws/manage-invites', {
+    const response = await fetch(MANAGE_INVITES_API, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
@@ -135,14 +147,12 @@ export async function getInvitesForTree(treeId) {
       throw new Error(data.error || 'Failed to fetch invites');
     }
 
-    // Filter by treeId since the function returns all user's invites
+    // Filter by treeId since the function returns all of the user's invites
     return data.data.filter(invite => invite.treeId === treeId);
   } catch (error) {
     throw new Error(`Failed to get invites: ${error.message}`);
   }
 }
-
-
 
 // Update an invite
 export async function updateInviteService({
