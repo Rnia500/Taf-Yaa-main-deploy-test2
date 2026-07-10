@@ -121,7 +121,7 @@ const JoinPage = () => {
       await acceptJoinRequest(joinRequest.JoinRequestId, currentUser.uid);
 
       addToast('Successfully joined the family tree!', 'success');
-      navigate(`/tree/${inviteData.invite.treeId}`);
+      navigate(`/family-tree/${inviteData.invite.treeId}`);
     } catch (error) {
       console.error('Failed to process grant invite:', error);
       addToast('Failed to join the family tree', 'error');

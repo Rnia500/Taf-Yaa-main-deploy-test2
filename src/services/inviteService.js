@@ -45,7 +45,7 @@ export async function createInviteService({
   usesAllowed = 1,
   expiresAt,
   notes,
-  appBaseUrl = 'https://main.d7edwsmcibj79.amplifyapp.com/',
+  appBaseUrl = 'https://main.d7edwsmcibj79.amplifyapp.com',
 }) {
   const code = generateInviteCode();
   const joinUrl = `${appBaseUrl}/join?code=${encodeURIComponent(code)}`;
