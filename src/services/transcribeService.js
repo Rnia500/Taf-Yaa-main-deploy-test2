@@ -1,6 +1,3 @@
-// src/services/transcribeService.js
-// FIXED: clean URL, no query params
-
 const TRANSCRIBE_API = (import.meta.env.VITE_TRANSCRIBE_API_URL || '').replace(/\/$/, '');
 
 export const RECORDING_LANGUAGES = {
