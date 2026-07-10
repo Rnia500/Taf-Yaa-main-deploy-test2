@@ -1,6 +1,3 @@
-// src/components/VoiceStoryRecorder.jsx
-// Full voice recorder + manual transcription for African languages
-
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Mic, MicOff, Square, Play, Pause, Send, X,
@@ -10,7 +7,7 @@ import {
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
-import { transcribeAudio, LANGUAGE_GROUPS, RECORDING_LANGUAGES } from '../services/transcribeService';
+import { transcribeAudio, getGroupedLanguages, RECORDING_LANGUAGES } from '../services/transcribeService';
 
 const css = `
   @keyframes spin    { to{transform:rotate(360deg)} }
@@ -73,8 +70,8 @@ function LanguageSelector({ value, onChange, t }) {
 
       {open&&(
         <div style={{position:'absolute',top:'calc(100% + 6px)',left:0,right:0,background:t?.card||'#fff',border:`1px solid ${t?.border||'#e5e7eb'}`,borderRadius:14,boxShadow:'0 8px 32px rgba(0,0,0,.12)',zIndex:100,maxHeight:360,overflowY:'auto',animation:'fadeIn .15s ease'}}>
-          {Object.entries(LANGUAGE_GROUPS).map(([groupKey, group])=>(
-            <div key={groupKey}>
+          {getGroupedLanguages().map((group)=>(
+            <div key={group.label}>
               <div style={{padding:'10px 14px 4px',fontSize:11,fontWeight:600,color:t?.textFaint||'#9ca3af',textTransform:'uppercase',letterSpacing:'0.06em',borderBottom:`1px solid ${t?.border||'#f0f0f0'}`,marginBottom:4}}>
                 {group.label}
               </div>
